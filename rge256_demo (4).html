@@ -1,0 +1,3129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGE-256 Random Number Generator - Interactive Demo</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Professional pseudorandom number generator with ARX architecture and geometric entropy. Generate, analyze, and test random numbers with comprehensive statistical analysis.">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RGE-256">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .container {
+            background: #0f3460;
+        }
+
+        body.dark-mode .panel {
+            background: #16213e;
+            border-color: #1a1a2e;
+        }
+
+        body.dark-mode .control-group input,
+        body.dark-mode .control-group select {
+            background: #0f3460;
+            color: #e6e6e6;
+            border-color: #1a1a2e;
+        }
+
+        body.dark-mode .output-box {
+            background: #1a1a2e;
+            color: #4ecca3;
+        }
+
+        body.dark-mode .stat-card {
+            background: #0f3460;
+            border-color: #667eea;
+        }
+
+        body.dark-mode .stat-card .value {
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .game-card {
+            background: #0f3460;
+            border-color: #1a1a2e;
+        }
+
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode label,
+        body.dark-mode .stat-card .label {
+            color: #e6e6e6;
+        }
+
+        body.dark-mode p,
+        body.dark-mode small {
+            color: #b0b0b0;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        body.dark-mode .modal-content {
+            background-color: #0f3460;
+            color: #e6e6e6;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: white;
+        }
+
+        .close-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .help-section {
+            margin-bottom: 30px;
+        }
+
+        .help-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        body.dark-mode .help-section h3 {
+            color: #a8b3ff;
+        }
+
+        .help-section p, .help-section ul {
+            line-height: 1.8;
+        }
+
+        .help-section ul {
+            margin-left: 20px;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .help-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .help-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        body.dark-mode .help-card {
+            background: #1a1a2e;
+            border-left-color: #a8b3ff;
+        }
+
+        .help-card strong {
+            color: #667eea;
+        }
+
+        body.dark-mode .help-card strong {
+            color: #a8b3ff;
+        }
+
+        .interpretation-guide {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        body.dark-mode .interpretation-guide {
+            background: #1a2332;
+        }
+
+        .interpretation-guide .good {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .interpretation-guide .warning {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .interpretation-guide .bad {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel h2::before {
+            content: "⚙️";
+        }
+
+        .panel.output h2::before {
+            content: "📊";
+        }
+
+        .panel.visualization h2::before {
+            content: "📈";
+        }
+
+        .panel.stats h2::before {
+            content: "🔢";
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .control-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+            font-size: 0.85em;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group.full {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        button.success {
+            background: #28a745;
+            color: white;
+        }
+
+        button.success:hover {
+            background: #218838;
+        }
+
+        .output-box {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        canvas {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .badge.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <button class="theme-toggle" onclick="showHelp()" style="right: 180px;">❓ Help</button>
+            <h1>🎲 RGE-256 Random Number Generator</h1>
+            <p>ARX-Based PRNG with Geometric Entropy</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Configuration Panel -->
+            <div class="panel">
+                <h2>Generator Configuration</h2>
+                
+                <div class="info-box">
+                    <h3>What is RGE-256?</h3>
+                    <p>A 256-bit ARX-based pseudorandom number generator with rotation constants derived from Recursive Division Tree entropy analysis.</p>
+                </div>
+
+                <div class="control-group">
+                    <label>Seed (0 to 2^53-1)</label>
+                    <input type="number" id="seed" value="3405691" min="0" max="9007199254740991">
+                    <small>Starting point for random sequence (0xC0FFEE in decimal)</small>
+                </div>
+
+                <div class="control-group">
+                    <label>Rounds per Generation</label>
+                    <select id="rounds">
+                        <option value="3" selected>3 rounds (default)</option>
+                        <option value="4">4 rounds (more mixing)</option>
+                        <option value="5">5 rounds (maximum)</option>
+                    </select>
+                    <small>More rounds = better diffusion, slower generation</small>
+                </div>
+
+                <div class="control-group">
+                    <label>ζ₁ (Triangle) - Rotation Parameter</label>
+                    <input type="number" id="zeta1" value="1.585" step="0.001" min="1.0" max="2.0">
+                    <small>Triangle entropy constant (default: 1.585)</small>
+                </div>
+
+                <div class="control-group">
+                    <label>ζ₂ (Menger) - Rotation Parameter</label>
+                    <input type="number" id="zeta2" value="1.926" step="0.001" min="1.0" max="2.0">
+                    <small>Menger-like entropy constant (default: 1.926)</small>
+                </div>
+
+                <div class="control-group">
+                    <label>ζ₃ (Tetrahedron) - Rotation Parameter</label>
+                    <input type="number" id="zeta3" value="1.262" step="0.001" min="1.0" max="2.0">
+                    <small>Tetrahedral entropy constant (default: 1.262)</small>
+                </div>
+
+                <div class="control-group">
+                    <label>Domain Separation</label>
+                    <input type="text" id="domain" value="rge-demo" maxlength="32">
+                    <small>Optional: Different domains produce different sequences</small>
+                </div>
+
+                <div class="button-group">
+                    <button class="primary" onclick="initializeGenerator()">Initialize Generator</button>
+                    <button class="secondary" onclick="randomizeSeed()">Random Seed</button>
+                </div>
+            </div>
+
+            <!-- Generation Panel -->
+            <div class="panel">
+                <h2>Number Generation</h2>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('numbers')">Numbers</button>
+                    <button class="tab" onclick="switchTab('hex')">Hexadecimal</button>
+                    <button class="tab" onclick="switchTab('binary')">Binary</button>
+                    <button class="tab" onclick="switchTab('floats')">Floats (0-1)</button>
+                </div>
+
+                <div class="control-group">
+                    <label>How Many to Generate?</label>
+                    <input type="number" id="count" value="1000" min="1" max="100000">
+                    <small>💡 For good visualizations: use 1,000+ numbers. For statistical tests: use 10,000+</small>
+                    <div style="display: flex; gap: 5px; margin-top: 8px;">
+                        <button onclick="document.getElementById('count').value=100" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">100</button>
+                        <button onclick="document.getElementById('count').value=1000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">1K</button>
+                        <button onclick="document.getElementById('count').value=10000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">10K</button>
+                        <button onclick="document.getElementById('count').value=50000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">50K</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Number Range</label>
+                    <select id="range">
+                        <option value="u32">32-bit Unsigned (0 to 4,294,967,295)</option>
+                        <option value="u16">16-bit Unsigned (0 to 65,535)</option>
+                        <option value="u8">8-bit Unsigned (0 to 255)</option>
+                        <option value="custom" selected>Custom Range</option>
+                    </select>
+                    <small>💡 For true continuous floats (0.0-1.0), use 32-bit Unsigned then switch to Floats tab</small>
+                </div>
+
+                <div class="control-group" id="customRangeGroup">
+                    <label>Custom Range (Min - Max)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="number" id="rangeMin" value="1" placeholder="Min">
+                        <input type="number" id="rangeMax" value="100" placeholder="Max">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="primary" onclick="generateNumbers()">Generate Numbers</button>
+                    <button class="success" onclick="downloadNumbers()">Download TXT</button>
+                    <button class="secondary" onclick="exportCSV()">Export CSV</button>
+                    <button class="secondary" onclick="exportJSON()">Export JSON</button>
+                    <button class="secondary" onclick="exportPDF()" style="background: #e74c3c; color: white;">📄 Export PDF Report</button>
+                </div>
+
+                <div class="button-group" style="margin-top: 10px;">
+                    <button class="secondary" onclick="resetNumbers()">Clear Numbers</button>
+                    <button class="secondary" onclick="resetAll()">Reset Everything</button>
+                    <button class="success" onclick="saveSession()">💾 Save Session</button>
+                    <button class="primary" onclick="loadSession()">📁 Load Session</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label><strong>Generated Output:</strong></label>
+                    <div class="output-box" id="output">Click "Generate Numbers" to begin...</div>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="panel stats">
+                <h2>Statistical Analysis</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="label">Numbers Generated</div>
+                        <div class="value" id="statCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Mean Value</div>
+                        <div class="value" id="statMean">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Min / Max</div>
+                        <div class="value" id="statMinMax">- / -</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Std Deviation</div>
+                        <div class="value" id="statStdDev">-</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label><strong>Shannon Entropy:</strong></label>
+                    <div class="stat-card">
+                        <div class="label" id="entropyLabel">Entropy</div>
+                        <div class="value" id="entropyValue">-</div>
+                        <small style="margin-top: 10px; display: block;">
+                            <span class="badge info" id="entropyIdeal">Ideal = 100%</span>
+                            Current: <span id="entropyPercent">-</span>
+                        </small>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label><strong>Chi-Square Test:</strong></label>
+                    <div class="stat-card">
+                        <div class="label">Chi-Square Statistic</div>
+                        <div class="value" id="chiSquare">-</div>
+                        <small style="margin-top: 10px; display: block;">
+                            <span class="badge info">Lower is better</span>
+                            Expected ≈ <span id="chiExpected">-</span>
+                        </small>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label><strong>Kolmogorov-Smirnov Test:</strong></label>
+                    <div class="stat-card">
+                        <div class="label">KS Statistic</div>
+                        <div class="value" id="ksStatistic">-</div>
+                        <small style="margin-top: 10px; display: block;">
+                            <span class="badge" id="ksBadge">-</span>
+                            <span id="ksInterpretation">-</span>
+                        </small>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label><strong>Quick Tests:</strong></label>
+                    <button class="secondary" style="width: 100%; margin-top: 10px;" onclick="runTests()">
+                        Run Statistical Tests
+                    </button>
+                    <div id="testResults" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="panel visualization">
+                <h2>Distribution Visualization</h2>
+                
+                <canvas id="histogram"></canvas>
+                
+                <div style="margin-top: 20px;">
+                    <label><strong>Visualization Options:</strong></label>
+                    <select id="vizType" onchange="updateVisualization()" style="width: 100%; padding: 10px; margin-top: 10px;">
+                        <option value="histogram">Histogram (Distribution)</option>
+                        <option value="scatter">Scatter Plot (Sequence)</option>
+                        <option value="bits">Bit Pattern Analysis</option>
+                        <option value="heatmap">Bit Transition Heatmap</option>
+                    </select>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h3>📊 What am I seeing?</h3>
+                    <p id="vizExplanation">Generate numbers to see distribution analysis.</p>
+                </div>
+            </div>
+
+            <!-- Performance Panel -->
+            <div class="panel full-width">
+                <h2>Performance & Benchmarks</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="label">Generation Speed</div>
+                        <div class="value" id="perfSpeed">-</div>
+                        <small>numbers per second</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Last Generation Time</div>
+                        <div class="value" id="perfTime">-</div>
+                        <small>milliseconds</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Total Generated</div>
+                        <div class="value" id="perfTotal">0</div>
+                        <small>all time</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Generator Status</div>
+                        <div class="value" id="perfStatus">
+                            <span class="badge warning">Not Initialized</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="secondary" onclick="runBenchmark()">Run Performance Benchmark</button>
+                    <div id="benchmarkResults" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Interactive Games/Simulations Panel -->
+            <div class="panel full-width" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                <h2 style="color: #667eea;">🎮 Interactive Demos & Games</h2>
+                <p style="margin-bottom: 20px; color: #6c757d;">See RGE-256 in action with classic probability applications!</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    
+                    <!-- Dice Roller -->
+                    <div class="game-card">
+                        <h3>🎲 Dice Roller</h3>
+                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;">Roll virtual dice using RGE-256</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <label><strong>Number of Dice:</strong></label>
+                            <select id="numDice" style="width: 100%; padding: 8px; margin-top: 5px;">
+                                <option value="1">1 die (1d6)</option>
+                                <option value="2" selected>2 dice (2d6)</option>
+                                <option value="3">3 dice (3d6)</option>
+                                <option value="4">4 dice (4d6)</option>
+                                <option value="5">5 dice (5d6)</option>
+                                <option value="6">6 dice (6d6)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="primary" onclick="rollDice()" style="width: 100%;">🎲 Roll Dice!</button>
+                        
+                        <div id="diceResult" style="margin-top: 20px; min-height: 120px;">
+                            <div style="font-size: 3em; text-align: center; padding: 20px;">🎲</div>
+                            <div style="text-align: center; color: #6c757d;">Click "Roll Dice" to start!</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+                                <span>Rolls: <strong id="diceRollCount">0</strong></span>
+                                <span>Average: <strong id="diceAvg">-</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coin Flipper -->
+                    <div class="game-card">
+                        <h3>🪙 Coin Flipper</h3>
+                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;">Flip coins and track statistics</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <label><strong>Number of Flips:</strong></label>
+                            <select id="numFlips" style="width: 100%; padding: 8px; margin-top: 5px;">
+                                <option value="1" selected>1 flip</option>
+                                <option value="10">10 flips</option>
+                                <option value="100">100 flips</option>
+                                <option value="1000">1,000 flips</option>
+                                <option value="10000">10,000 flips</option>
+                            </select>
+                        </div>
+                        
+                        <button class="primary" onclick="flipCoins()" style="width: 100%;">🪙 Flip Coins!</button>
+                        
+                        <div id="coinResult" style="margin-top: 20px; min-height: 120px;">
+                            <div style="font-size: 3em; text-align: center; padding: 20px;">🪙</div>
+                            <div style="text-align: center; color: #6c757d;">Click "Flip Coins" to start!</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 8px;">
+                            <div style="font-size: 0.85em;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Heads: <strong id="headsCount">0</strong> (<span id="headsPercent">0%</span>)</span>
+                                    <span>Tails: <strong id="tailsCount">0</strong> (<span id="tailsPercent">0%</span>)</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="headsProgress" class="progress-fill" style="width: 50%; background: linear-gradient(90deg, #28a745 0%, #20c997 100%);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Drawer -->
+                    <div class="game-card">
+                        <h3>🃏 Card Drawer</h3>
+                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;">Draw random playing cards from a deck</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <label><strong>Cards to Draw:</strong></label>
+                            <select id="numCards" style="width: 100%; padding: 8px; margin-top: 5px;">
+                                <option value="1" selected>1 card</option>
+                                <option value="5">5 cards (poker hand)</option>
+                                <option value="7">7 cards</option>
+                                <option value="13">13 cards (bridge hand)</option>
+                                <option value="52">Full deck (shuffle)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="primary" onclick="drawCards()" style="width: 100%;">🃏 Draw Cards!</button>
+                        
+                        <div id="cardResult" style="margin-top: 20px; min-height: 120px; max-height: 200px; overflow-y: auto;">
+                            <div style="font-size: 3em; text-align: center; padding: 20px;">🃏</div>
+                            <div style="text-align: center; color: #6c757d;">Click "Draw Cards" to start!</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 8px; font-size: 0.85em; text-align: center;">
+                            Cards drawn: <strong id="cardsDrawnCount">0</strong> / 52
+                        </div>
+                    </div>
+                    
+                    <!-- Lottery Number Generator -->
+                    <div class="game-card">
+                        <h3>🎰 Lottery Numbers</h3>
+                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;">Generate lottery-style numbers</p>
+                        
+                        <div style="margin: 15px 0;">
+                            <label><strong>Lottery Type:</strong></label>
+                            <select id="lotteryType" style="width: 100%; padding: 8px; margin-top: 5px;">
+                                <option value="6-49">6 numbers from 1-49 (Lotto)</option>
+                                <option value="5-69">5 numbers from 1-69 (Powerball)</option>
+                                <option value="5-70">5 numbers from 1-70 (Mega Millions)</option>
+                                <option value="7-35">7 numbers from 1-35 (Quick Pick)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="primary" onclick="generateLottery()" style="width: 100%;">🎰 Generate Numbers!</button>
+                        
+                        <div id="lotteryResult" style="margin-top: 20px; min-height: 120px;">
+                            <div style="font-size: 3em; text-align: center; padding: 20px;">🎰</div>
+                            <div style="text-align: center; color: #6c757d;">Click "Generate Numbers" to start!</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 8px; font-size: 0.85em; text-align: center;">
+                            <button class="secondary" onclick="generateMultipleLottery()" style="padding: 8px 16px; font-size: 0.9em;">
+                                Generate 5 Sets
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .game-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .game-card h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .dice-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .die {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: rollAnimation 0.5s ease-out;
+        }
+        
+        @keyframes rollAnimation {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+        
+        .coin {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: flipAnimation 0.6s ease-out;
+        }
+        
+        @keyframes flipAnimation {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        .card-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .playing-card {
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .playing-card.red {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .playing-card.black {
+            color: #000;
+            border-color: #000;
+        }
+        
+        .lottery-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .lottery-ball {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+
+    <script>
+        // ========================================
+        // RGE-256 Implementation in JavaScript
+        // ========================================
+        
+        function rotl32(x, r) {
+            return ((x << r) | (x >>> (32 - r))) >>> 0;
+        }
+
+        function simpleHash(str) {
+            let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+            for (let i = 0; i < str.length; i++) {
+                const ch = str.charCodeAt(i);
+                h1 = Math.imul(h1 ^ ch, 2654435761);
+                h2 = Math.imul(h2 ^ ch, 1597334677);
+            }
+            h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+            h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+            return [(h1 >>> 0), (h2 >>> 0)];
+        }
+
+        class RGE256 {
+            constructor(seed, rounds = 3, zetas = [1.585, 1.926, 1.262], domain = "rge-demo") {
+                this.rounds = rounds;
+                this.zetas = zetas;
+                
+                // Initialize state from seed
+                const [h1, h2] = simpleHash(seed.toString() + domain);
+                const state = new Uint32Array(16);
+                
+                // Fill state with pseudo-random values
+                let x = seed >>> 0;
+                for (let i = 0; i < 16; i++) {
+                    x ^= x << 13;
+                    x ^= x >>> 17;
+                    x ^= x << 5;
+                    x = (x + h1 + h2 * i) >>> 0;
+                    state[i] = x;
+                }
+                
+                this.s0 = state[0];
+                this.s1 = state[1];
+                this.s2 = state[2];
+                this.s3 = state[3];
+                this.s4 = state[4];
+                this.s5 = state[5];
+                this.s6 = state[6];
+                this.s7 = state[7];
+                
+                // Derive rotation constants from zetas
+                const [tri, meng, tet] = zetas;
+                const base = [
+                    tri, meng, tet, 
+                    (tri + meng + tet) / 3.0,
+                    tri + 0.5, meng + 0.75, tet + 0.25,
+                    (tri * 1.25 + tet * 0.75) / 2
+                ];
+                this.r = base.map((z, i) => Math.max(1, Math.floor(Math.abs(z * 977 + (i * 7 + 13)) % 31) || 1));
+                
+                // Derive key constants
+                const kbase = [0x9E3779B9, 0x517CC1B7, 0xC2B2AE35, 0x165667B1, 
+                              0x85EBCA77, 0x27D4EB2F, 0xDE5FB9D7, 0x94D049BB];
+                this.k = kbase.map((k, i) => (k ^ state[8 + i]) >>> 0);
+                
+                // Warm up
+                for (let i = 0; i < 10; i++) this._step();
+            }
+            
+            _step() {
+                let s0 = this.s0, s1 = this.s1, s2 = this.s2, s3 = this.s3;
+                let s4 = this.s4, s5 = this.s5, s6 = this.s6, s7 = this.s7;
+                const [r0, r1, r2, r3, r4, r5, r6, r7] = this.r;
+                
+                // Quad A
+                s0 = (s0 + s1 + this.k[0]) >>> 0;
+                s1 = rotl32(s1 ^ s0, r0);
+                s2 = (s2 + s3 + this.k[1]) >>> 0;
+                s3 = rotl32(s3 ^ s2, r1);
+                const tA0 = s0 ^ s2, tA1 = s1 ^ s3;
+                s0 = (s0 + rotl32(tA0, r2) + this.k[2]) >>> 0;
+                s2 = (s2 + rotl32(tA1, r3) + this.k[3]) >>> 0;
+                s1 ^= rotl32(s0, (r0 + r2) % 31 || 1);
+                s3 ^= rotl32(s2, (r1 + r3) % 31 || 1);
+                
+                // Quad B
+                s4 = (s4 + s5 + this.k[4]) >>> 0;
+                s5 = rotl32(s5 ^ s4, r4);
+                s6 = (s6 + s7 + this.k[5]) >>> 0;
+                s7 = rotl32(s7 ^ s6, r5);
+                const tB0 = s4 ^ s6, tB1 = s5 ^ s7;
+                s4 = (s4 + rotl32(tB0, r6) + this.k[6]) >>> 0;
+                s6 = (s6 + rotl32(tB1, r7) + this.k[7]) >>> 0;
+                s5 ^= rotl32(s4, (r4 + r6) % 31 || 1);
+                s7 ^= rotl32(s6, (r5 + r7) % 31 || 1);
+                
+                // Cross-couple + global fold
+                s1 ^= rotl32(s5, 13);
+                s3 ^= rotl32(s7, 7);
+                s5 ^= rotl32(s1, 11);
+                s7 ^= rotl32(s3, 17);
+                const m0 = s0 ^ s4, m1 = s1 ^ s5, m2 = s2 ^ s6, m3 = s3 ^ s7;
+                s0 = (s0 + rotl32(m1, 3)) >>> 0;
+                s1 = (s1 + rotl32(m2, 5)) >>> 0;
+                s2 = (s2 + rotl32(m3, 7)) >>> 0;
+                s3 = (s3 + rotl32(m0, 11)) >>> 0;
+                s4 ^= rotl32(s0, 19);
+                s5 ^= rotl32(s1, 23);
+                s6 ^= rotl32(s2, 29);
+                s7 ^= rotl32(s3, 31);
+                
+                this.s0 = s0; this.s1 = s1; this.s2 = s2; this.s3 = s3;
+                this.s4 = s4; this.s5 = s5; this.s6 = s6; this.s7 = s7;
+            }
+            
+            next32() {
+                for (let i = 0; i < this.rounds; i++) {
+                    this._step();
+                }
+                return (this.s0 ^ rotl32(this.s4, 13)) >>> 0;
+            }
+            
+            nextFloat() {
+                return this.next32() / 0x100000000;
+            }
+            
+            nextRange(min, max) {
+                const range = max - min + 1;
+                return min + (this.next32() % range);
+            }
+        }
+
+        // ========================================
+        // Global State
+        // ========================================
+        
+        let generator = null;
+        let generatedNumbers = [];
+        let totalGenerated = 0;
+        let currentTab = 'numbers';
+
+        // ========================================
+        // Generator Control
+        // ========================================
+        
+        function initializeGenerator() {
+            const seed = parseInt(document.getElementById('seed').value);
+            const rounds = parseInt(document.getElementById('rounds').value);
+            const zeta1 = parseFloat(document.getElementById('zeta1').value);
+            const zeta2 = parseFloat(document.getElementById('zeta2').value);
+            const zeta3 = parseFloat(document.getElementById('zeta3').value);
+            const domain = document.getElementById('domain').value;
+            
+            generator = new RGE256(seed, rounds, [zeta1, zeta2, zeta3], domain);
+            
+            document.getElementById('perfStatus').innerHTML = '<span class="badge success">Ready</span>';
+            document.getElementById('output').textContent = 'Generator initialized! Click "Generate Numbers" to create random numbers.';
+            
+            console.log('RGE-256 initialized:', { seed, rounds, zetas: [zeta1, zeta2, zeta3], domain });
+        }
+        
+        function randomizeSeed() {
+            const randomSeed = Math.floor(Math.random() * 0x100000000);
+            document.getElementById('seed').value = randomSeed;
+        }
+        
+        function generateNumbers() {
+            if (!generator) {
+                initializeGenerator();
+            }
+            
+            const count = parseInt(document.getElementById('count').value);
+            const range = document.getElementById('range').value;
+            const min = parseInt(document.getElementById('rangeMin').value);
+            const max = parseInt(document.getElementById('rangeMax').value);
+            
+            const startTime = performance.now();
+            generatedNumbers = [];
+            
+            for (let i = 0; i < count; i++) {
+                let num;
+                if (range === 'custom') {
+                    num = generator.nextRange(min, max);
+                } else if (range === 'u32') {
+                    num = generator.next32();
+                } else if (range === 'u16') {
+                    num = generator.next32() & 0xFFFF;
+                } else if (range === 'u8') {
+                    num = generator.next32() & 0xFF;
+                }
+                generatedNumbers.push(num);
+            }
+            
+            const endTime = performance.now();
+            const elapsed = endTime - startTime;
+            
+            totalGenerated += count;
+            
+            // Update performance stats
+            document.getElementById('perfTime').textContent = elapsed.toFixed(2);
+            document.getElementById('perfSpeed').textContent = Math.floor(count / (elapsed / 1000)).toLocaleString();
+            document.getElementById('perfTotal').textContent = totalGenerated.toLocaleString();
+            
+            // Display output
+            displayOutput();
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Update visualization
+            updateVisualization();
+        }
+        
+        function displayOutput() {
+            const output = document.getElementById('output');
+            let text = '';
+            
+            if (currentTab === 'numbers') {
+                const preview = generatedNumbers.slice(0, 1000);
+                text = preview.join(', ');
+                if (generatedNumbers.length > 1000) {
+                    text += `\n\n... (showing first 1000 of ${generatedNumbers.length.toLocaleString()})`;
+                }
+            } else if (currentTab === 'hex') {
+                const preview = generatedNumbers.slice(0, 1000);
+                text = preview.map(n => {
+                    // Determine how many hex digits we need based on the number
+                    let hexStr = n.toString(16).toUpperCase();
+                    // Pad to at least 2 digits, or more if needed
+                    const minWidth = n > 0xFF ? (n > 0xFFFF ? (n > 0xFFFFFF ? 8 : 6) : 4) : 2;
+                    return '0x' + hexStr.padStart(minWidth, '0');
+                }).join('\n');
+                if (generatedNumbers.length > 1000) {
+                    text += `\n\n... (showing first 1000 of ${generatedNumbers.length.toLocaleString()})`;
+                }
+            } else if (currentTab === 'binary') {
+                const preview = generatedNumbers.slice(0, 200);
+                text = preview.map(n => {
+                    // Determine bit width based on the number
+                    let bits;
+                    if (n <= 0xFF) {
+                        bits = n.toString(2).padStart(8, '0');
+                    } else if (n <= 0xFFFF) {
+                        bits = n.toString(2).padStart(16, '0');
+                    } else {
+                        bits = n.toString(2).padStart(32, '0');
+                    }
+                    // Add spaces every 4 bits for readability
+                    return bits.match(/.{1,4}/g).join(' ');
+                }).join('\n');
+                if (generatedNumbers.length > 200) {
+                    text += `\n\n... (showing first 200 of ${generatedNumbers.length.toLocaleString()})`;
+                }
+            } else if (currentTab === 'floats') {
+                const preview = generatedNumbers.slice(0, 1000);
+                // Convert integers to floats in 0-1 range
+                const floats = preview.map(n => {
+                    // Get the max value from the range
+                    const range = document.getElementById('range').value;
+                    let maxVal;
+                    if (range === 'u32') {
+                        maxVal = 0x100000000; // Use full 32-bit range for continuous floats
+                    } else if (range === 'u16') {
+                        maxVal = 0x10000;
+                    } else if (range === 'u8') {
+                        maxVal = 0x100;
+                    } else {
+                        // custom range - regenerate as raw 32-bit for true floats
+                        // Otherwise you get discrete steps (e.g., only 99 values for 1-100)
+                        return null; // Will handle separately
+                    }
+                    return (n / maxVal).toFixed(10);
+                });
+                
+                // If custom range, regenerate from raw 32-bit
+                if (document.getElementById('range').value === 'custom') {
+                    text = '// Regenerated as true continuous floats (0.0 to 1.0)\n';
+                    text += '// Custom integer ranges create discrete steps - this shows raw float capability\n\n';
+                    
+                    const seed = parseInt(document.getElementById('seed').value);
+                    const rounds = parseInt(document.getElementById('rounds').value);
+                    const zeta1 = parseFloat(document.getElementById('zeta1').value);
+                    const zeta2 = parseFloat(document.getElementById('zeta2').value);
+                    const zeta3 = parseFloat(document.getElementById('zeta3').value);
+                    const domain = document.getElementById('domain').value;
+                    
+                    const tempGen = new RGE256(seed, rounds, [zeta1, zeta2, zeta3], domain);
+                    const trueFloats = [];
+                    for (let i = 0; i < Math.min(1000, generatedNumbers.length); i++) {
+                        const raw32 = tempGen.next32();
+                        trueFloats.push((raw32 / 0x100000000).toFixed(10));
+                    }
+                    text += trueFloats.join('\n');
+                } else {
+                    text = floats.join('\n');
+                }
+                
+                if (generatedNumbers.length > 1000) {
+                    text += `\n\n... (showing first 1000 of ${generatedNumbers.length.toLocaleString()})`;
+                }
+            }
+            
+            output.textContent = text;
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach((btn, idx) => {
+                const tabs = ['numbers', 'hex', 'binary', 'floats'];
+                if (tabs[idx] === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Redisplay output
+            if (generatedNumbers.length > 0) {
+                displayOutput();
+            }
+        }
+        
+        function downloadNumbers() {
+            if (generatedNumbers.length === 0) {
+                alert('Generate some numbers first!');
+                return;
+            }
+            
+            const text = generatedNumbers.join('\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rge256_numbers_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // ========================================
+        // Statistics
+        // ========================================
+        
+        function updateStatistics() {
+            if (generatedNumbers.length === 0) return;
+            
+            const count = generatedNumbers.length;
+            const sum = generatedNumbers.reduce((a, b) => a + b, 0);
+            const mean = sum / count;
+            const min = Math.min(...generatedNumbers);
+            const max = Math.max(...generatedNumbers);
+            
+            const variance = generatedNumbers.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
+            const stdDev = Math.sqrt(variance);
+            
+            document.getElementById('statCount').textContent = count.toLocaleString();
+            document.getElementById('statMean').textContent = mean.toFixed(2);
+            document.getElementById('statMinMax').textContent = `${min} / ${max}`;
+            document.getElementById('statStdDev').textContent = stdDev.toFixed(2);
+            
+            // Chi-square test
+            const bins = Math.min(100, Math.floor(max - min + 1));
+            const expected = count / bins;
+            const binSize = (max - min + 1) / bins;
+            const observed = new Array(bins).fill(0);
+            
+            generatedNumbers.forEach(n => {
+                const bin = Math.min(bins - 1, Math.floor((n - min) / binSize));
+                observed[bin]++;
+            });
+            
+            const chiSquare = observed.reduce((acc, obs) => {
+                return acc + Math.pow(obs - expected, 2) / expected;
+            }, 0);
+            
+            document.getElementById('chiSquare').textContent = chiSquare.toFixed(2);
+            document.getElementById('chiExpected').textContent = (bins - 1).toFixed(0);
+            
+            // Calculate entropy
+            calculateEntropy();
+            
+            // Run KS test
+            if (count >= 100) {
+                kolmogorovSmirnovTest();
+            }
+        }
+        
+        function runTests() {
+            if (generatedNumbers.length < 100) {
+                alert('Generate at least 100 numbers for statistical tests!');
+                return;
+            }
+            
+            const results = [];
+            
+            // Test 1: Runs test
+            let runs = 1;
+            for (let i = 1; i < generatedNumbers.length; i++) {
+                if ((generatedNumbers[i] > generatedNumbers[i-1]) !== 
+                    (generatedNumbers[i-1] > generatedNumbers[i-2])) {
+                    runs++;
+                }
+            }
+            const expectedRuns = (2 * generatedNumbers.length - 1) / 3;
+            const runsTest = Math.abs(runs - expectedRuns) < expectedRuns * 0.3;
+            results.push(`<span class="badge ${runsTest ? 'success' : 'warning'}">Runs Test: ${runsTest ? 'PASS' : 'WEAK'}</span>`);
+            
+            // Test 2: Gap test
+            const gaps = [];
+            let lastSeen = -1;
+            const targetValue = generatedNumbers[0];
+            generatedNumbers.forEach((n, i) => {
+                if (n === targetValue) {
+                    if (lastSeen >= 0) gaps.push(i - lastSeen);
+                    lastSeen = i;
+                }
+            });
+            const gapTest = gaps.length > 5 && Math.abs(gaps.reduce((a,b) => a+b, 0) / gaps.length - generatedNumbers.length / 2) < generatedNumbers.length * 0.3;
+            results.push(`<span class="badge ${gapTest ? 'success' : 'info'}">Gap Test: ${gapTest ? 'PASS' : 'N/A'}</span>`);
+            
+            // Test 3: Poker test (simplified)
+            const hands = [];
+            for (let i = 0; i < Math.floor(generatedNumbers.length / 5); i++) {
+                const hand = generatedNumbers.slice(i * 5, i * 5 + 5);
+                const unique = new Set(hand).size;
+                hands.push(unique);
+            }
+            const pokerMean = hands.reduce((a, b) => a + b, 0) / hands.length;
+            const pokerTest = pokerMean > 3.5 && pokerMean < 4.5;
+            results.push(`<span class="badge ${pokerTest ? 'success' : 'warning'}">Poker Test: ${pokerTest ? 'PASS' : 'WEAK'}</span>`);
+            
+            document.getElementById('testResults').innerHTML = results.join(' ');
+        }
+        
+        // ========================================
+        // Visualization
+        // ========================================
+        
+        function updateVisualization() {
+            const canvas = document.getElementById('histogram');
+            const ctx = canvas.getContext('2d');
+            const vizType = document.getElementById('vizType').value;
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (generatedNumbers.length === 0) {
+                ctx.fillStyle = '#999';
+                ctx.font = '16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Generate numbers to see visualization', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            if (vizType === 'histogram') {
+                drawHistogram(ctx, canvas);
+            } else if (vizType === 'scatter') {
+                drawScatter(ctx, canvas);
+            } else if (vizType === 'bits') {
+                drawBitPattern(ctx, canvas);
+            } else if (vizType === 'heatmap') {
+                drawBitTransitionHeatmap(ctx, canvas);
+            }
+        }
+        
+        function drawHistogram(ctx, canvas) {
+            const bins = Math.min(50, Math.max(...generatedNumbers) - Math.min(...generatedNumbers) + 1);
+            const min = Math.min(...generatedNumbers);
+            const max = Math.max(...generatedNumbers);
+            const binSize = (max - min + 1) / bins;
+            const counts = new Array(bins).fill(0);
+            
+            generatedNumbers.forEach(n => {
+                const bin = Math.min(bins - 1, Math.floor((n - min) / binSize));
+                counts[bin]++;
+            });
+            
+            const maxCount = Math.max(...counts);
+            const minCount = Math.min(...counts);
+            const avgCount = generatedNumbers.length / bins;
+            const barWidth = canvas.width / bins;
+            const padding = 50;
+            
+            // Draw expected average line FIRST (so bars draw on top)
+            ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            const avgHeight = (avgCount / maxCount) * (canvas.height - padding);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - avgHeight - padding);
+            ctx.lineTo(canvas.width, canvas.height - avgHeight - padding);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw bars with color coding
+            counts.forEach((count, i) => {
+                const barHeight = (count / maxCount) * (canvas.height - padding);
+                
+                // Color code based on deviation from average
+                const deviation = Math.abs(count - avgCount) / avgCount;
+                let color;
+                if (deviation < 0.2) {
+                    color = '#28a745'; // Green - good uniformity
+                } else if (deviation < 0.4) {
+                    color = '#ffc107'; // Yellow - acceptable
+                } else {
+                    color = '#dc3545'; // Red - non-uniform
+                }
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(
+                    i * barWidth,
+                    canvas.height - barHeight - padding,
+                    barWidth - 1,
+                    barHeight
+                );
+            });
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - padding);
+            ctx.lineTo(canvas.width, canvas.height - padding);
+            ctx.stroke();
+            
+            // Y-axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(maxCount.toString(), canvas.width - 5, 20);
+            ctx.fillText(Math.floor(avgCount).toString() + ' (avg)', canvas.width - 5, canvas.height - avgHeight - padding - 5);
+            ctx.fillText('0', canvas.width - 5, canvas.height - padding - 5);
+            
+            // X-axis labels
+            ctx.textAlign = 'left';
+            ctx.fillText(`Min: ${min}`, 5, canvas.height - 5);
+            ctx.textAlign = 'right';
+            ctx.fillText(`Max: ${max}`, canvas.width - 5, canvas.height - 5);
+            ctx.textAlign = 'center';
+            ctx.fillText(`Range: ${max - min + 1} values in ${bins} bins`, canvas.width / 2, canvas.height - 5);
+            
+            // Calculate uniformity metric (chi-square-like)
+            const chiSquare = counts.reduce((acc, obs) => {
+                return acc + Math.pow(obs - avgCount, 2) / avgCount;
+            }, 0);
+            
+            const expectedChiSq = bins - 1;
+            const uniformityScore = Math.max(0, 100 - Math.abs(chiSquare - expectedChiSq) / expectedChiSq * 100);
+            
+            document.getElementById('vizExplanation').innerHTML = 
+                `Histogram showing distribution of ${generatedNumbers.length.toLocaleString()} numbers across ${bins} bins. 
+                Red line = expected average (${Math.floor(avgCount)} per bin). 
+                Uniformity score: <strong>${uniformityScore.toFixed(1)}%</strong>. 
+                <span style="color: #28a745;">●</span> Green bars = within 20% of expected, 
+                <span style="color: #ffc107;">●</span> Yellow = within 40%, 
+                <span style="color: #dc3545;">●</span> Red = more than 40% off.`;
+        }
+        
+        function drawScatter(ctx, canvas) {
+            const points = Math.min(5000, generatedNumbers.length);
+            const padding = 20;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+            
+            const max = Math.max(...generatedNumbers.slice(0, points));
+            
+            ctx.fillStyle = '#667eea';
+            for (let i = 0; i < points - 1; i++) {
+                const x = padding + (i / points) * width;
+                const y = padding + height - (generatedNumbers[i] / max) * height;
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(padding, padding, width, height);
+            
+            document.getElementById('vizExplanation').textContent = 
+                `Scatter plot showing sequence of first ${points} numbers. Points should appear randomly distributed with no obvious patterns.`;
+        }
+        
+        function drawBitPattern(ctx, canvas) {
+            const samples = Math.min(1000, generatedNumbers.length);
+            const padding = 40;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+            
+            // Count bits in each position
+            const bitCounts = new Array(32).fill(0);
+            generatedNumbers.slice(0, samples).forEach(n => {
+                for (let i = 0; i < 32; i++) {
+                    if (n & (1 << i)) bitCounts[i]++;
+                }
+            });
+            
+            // Convert to percentages (0-100)
+            const bitPercentages = bitCounts.map(count => (count / samples) * 100);
+            
+            const barWidth = width / 32;
+            
+            // Draw axis and labels
+            ctx.fillStyle = '#333';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('100%', padding - 5, padding);
+            ctx.fillText('50%', padding - 5, padding + height / 2);
+            ctx.fillText('0%', padding - 5, padding + height);
+            
+            // Draw 50% reference line FIRST (so bars draw on top)
+            ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            const halfHeight = padding + height / 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, halfHeight);
+            ctx.lineTo(canvas.width - padding, halfHeight);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw bars (percentage from 0-100%)
+            bitPercentages.forEach((percent, i) => {
+                const barHeight = (percent / 100) * height;
+                
+                // Color code: green if close to 50%, yellow if off, red if very off
+                const deviation = Math.abs(percent - 50);
+                let color;
+                if (deviation < 2) {
+                    color = '#28a745'; // Green - excellent
+                } else if (deviation < 5) {
+                    color = '#ffc107'; // Yellow - acceptable
+                } else {
+                    color = '#dc3545'; // Red - problematic
+                }
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(
+                    padding + i * barWidth,
+                    padding + height - barHeight,
+                    barWidth - 2,
+                    barHeight
+                );
+                
+                // Show percentage on hover (draw small text)
+                if (i % 4 === 0) {
+                    ctx.fillStyle = '#333';
+                    ctx.font = '9px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(percent.toFixed(1) + '%', padding + i * barWidth + barWidth / 2, padding + height - barHeight - 3);
+                }
+            });
+            
+            // Draw border
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(padding, padding, width, height);
+            
+            // Labels for bit positions
+            ctx.fillStyle = '#333';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i < 32; i += 4) {
+                ctx.fillText('bit' + i, padding + i * barWidth + barWidth / 2, canvas.height - 5);
+            }
+            
+            // Calculate average deviation
+            const avgDeviation = bitPercentages.reduce((sum, p) => sum + Math.abs(p - 50), 0) / 32;
+            
+            document.getElementById('vizExplanation').innerHTML = 
+                `Bit pattern analysis of ${samples} numbers. Each bar shows percentage of 1s at that bit position. 
+                Red line = 50% (ideal). Average deviation: <strong>${avgDeviation.toFixed(2)}%</strong>. 
+                <span style="color: #28a745;">●</span> Green = excellent (&lt;2% off), 
+                <span style="color: #ffc107;">●</span> Yellow = acceptable (&lt;5% off), 
+                <span style="color: #dc3545;">●</span> Red = problematic (&gt;5% off)`;
+        }
+        
+        // ========================================
+        // Performance Benchmark
+        // ========================================
+        
+        function runBenchmark() {
+            const results = document.getElementById('benchmarkResults');
+            results.innerHTML = '<div style="color: #667eea;">Running benchmark...</div>';
+            
+            setTimeout(() => {
+                const testSizes = [1000, 10000, 100000];
+                let output = '<div class="stat-grid" style="margin-top: 15px;">';
+                
+                testSizes.forEach(size => {
+                    const testGen = new RGE256(Date.now(), 3, [1.585, 1.926, 1.262], "benchmark");
+                    const start = performance.now();
+                    
+                    for (let i = 0; i < size; i++) {
+                        testGen.next32();
+                    }
+                    
+                    const elapsed = performance.now() - start;
+                    const speed = Math.floor(size / (elapsed / 1000));
+                    
+                    output += `
+                        <div class="stat-card">
+                            <div class="label">${size.toLocaleString()} Numbers</div>
+                            <div class="value">${speed.toLocaleString()}</div>
+                            <small>${elapsed.toFixed(2)}ms</small>
+                        </div>
+                    `;
+                });
+                
+                output += '</div>';
+                results.innerHTML = output;
+            }, 100);
+        }
+        
+        // ========================================
+        // UI Helpers
+        // ========================================
+        
+        document.getElementById('range').addEventListener('change', function() {
+            document.getElementById('customRangeGroup').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        // ========================================
+        // Theme Toggle
+        // ========================================
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+        }
+        
+        // ========================================
+        // Help Modal
+        // ========================================
+        
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('helpModal');
+            if (event.target === modal) {
+                closeHelp();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeHelp();
+            }
+        });
+        
+        // ========================================
+        // PDF Export
+        // ========================================
+        
+        function exportPDF() {
+            if (generatedNumbers.length === 0) {
+                alert('Generate some numbers first!');
+                return;
+            }
+            
+            console.log('Generating PDF report...');
+            
+            try {
+                // Create PDF content as HTML
+                const timestamp = new Date().toLocaleString();
+                const seed = document.getElementById('seed').value;
+                const rounds = document.getElementById('rounds').value;
+                const range = document.getElementById('range').value;
+                const count = generatedNumbers.length;
+                
+                // Get statistics
+                const mean = (generatedNumbers.reduce((a, b) => a + b, 0) / count).toFixed(2);
+                const min = Math.min(...generatedNumbers);
+                const max = Math.max(...generatedNumbers);
+                const stdDev = document.getElementById('statStdDev').textContent;
+                const entropy = document.getElementById('entropyValue').textContent;
+                const entropyPercent = document.getElementById('entropyPercent').textContent;
+                const chiSquare = document.getElementById('chiSquare').textContent;
+                const chiExpected = document.getElementById('chiExpected').textContent;
+                const ksStatistic = document.getElementById('ksStatistic').textContent;
+                const ksResult = document.getElementById('ksBadge').textContent;
+                
+                // Get canvas as image
+                const canvas = document.getElementById('histogram');
+                const canvasImage = canvas.toDataURL('image/png');
+                
+                // Create HTML report
+                const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>RGE-256 Test Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .stat-good {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .stat-warning {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .stat-bad {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .visualization {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .visualization img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .header {
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎲 RGE-256 Test Report</h1>
+        <p>Pseudorandom Number Generator Analysis</p>
+        <p>${timestamp}</p>
+    </div>
+
+    <div class="section">
+        <h2>Configuration</h2>
+        <table>
+            <tr><th>Parameter</th><th>Value</th></tr>
+            <tr><td>Seed</td><td>${seed}</td></tr>
+            <tr><td>Rounds</td><td>${rounds}</td></tr>
+            <tr><td>Range</td><td>${range}</td></tr>
+            <tr><td>ζ₁ (Triangle)</td><td>${document.getElementById('zeta1').value}</td></tr>
+            <tr><td>ζ₂ (Menger)</td><td>${document.getElementById('zeta2').value}</td></tr>
+            <tr><td>ζ₃ (Tetrahedron)</td><td>${document.getElementById('zeta3').value}</td></tr>
+            <tr><td>Domain</td><td>${document.getElementById('domain').value}</td></tr>
+            <tr><td>Numbers Generated</td><td>${count.toLocaleString()}</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Statistical Summary</h2>
+        <table>
+            <tr><th>Statistic</th><th>Value</th><th>Interpretation</th></tr>
+            <tr>
+                <td>Mean</td>
+                <td>${mean}</td>
+                <td>${Math.abs(mean - (min + max) / 2) / ((max - min) / 2) < 0.02 ? '<span class="stat-good">✓ Excellent</span>' : '<span class="stat-warning">⚠ Check distribution</span>'}</td>
+            </tr>
+            <tr>
+                <td>Min / Max</td>
+                <td>${min} / ${max}</td>
+                <td>Full range coverage</td>
+            </tr>
+            <tr>
+                <td>Standard Deviation</td>
+                <td>${stdDev}</td>
+                <td>Spread of values</td>
+            </tr>
+            <tr>
+                <td>Shannon Entropy</td>
+                <td>${entropy} (${entropyPercent})</td>
+                <td>${parseFloat(entropyPercent) >= 98 ? '<span class="stat-good">✓ Excellent</span>' : parseFloat(entropyPercent) >= 95 ? '<span class="stat-warning">⚠ Acceptable</span>' : '<span class="stat-bad">✗ Poor</span>'}</td>
+            </tr>
+            <tr>
+                <td>Chi-Square</td>
+                <td>${chiSquare} (expected ≈ ${chiExpected})</td>
+                <td>${Math.abs(parseFloat(chiSquare) - parseFloat(chiExpected)) / parseFloat(chiExpected) < 0.2 ? '<span class="stat-good">✓ Good uniformity</span>' : '<span class="stat-warning">⚠ Check distribution</span>'}</td>
+            </tr>
+            <tr>
+                <td>Kolmogorov-Smirnov</td>
+                <td>${ksStatistic}</td>
+                <td><span class="${ksResult === 'PASS' ? 'stat-good' : 'stat-warning'}">${ksResult === 'PASS' ? '✓ PASS' : '⚠ WEAK'}</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Visualization</h2>
+        <div class="visualization">
+            <img src="${canvasImage}" alt="Distribution visualization">
+            <p><em>Current visualization: ${document.getElementById('vizType').options[document.getElementById('vizType').selectedIndex].text}</em></p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Interpretation</h2>
+        <div class="info-box">
+            <strong>Overall Assessment:</strong>
+            <p>This RGE-256 generator produced ${count.toLocaleString()} numbers with ${entropyPercent} entropy efficiency and ${ksResult === 'PASS' ? 'passed' : 'showed weak results in'} the Kolmogorov-Smirnov uniformity test. 
+            ${parseFloat(entropyPercent) >= 98 ? 'The high entropy indicates excellent randomness quality.' : parseFloat(entropyPercent) >= 95 ? 'The entropy is acceptable for most applications.' : 'Consider increasing the number of rounds or checking configuration.'}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>About RGE-256</h2>
+        <p>RGE-256 is a 256-bit ARX-based (Add-Rotate-XOR) pseudorandom number generator with rotation constants derived from Recursive Division Tree (RDT) entropy analysis. It is designed for simulations, games, research, and educational purposes.</p>
+        <div class="info-box">
+            <strong>⚠️ Important:</strong> This generator is NOT intended for cryptographic use. Do not use for security-critical applications such as key generation, encryption, or authentication.
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Generated by:</strong> RGE-256 Interactive Demo</p>
+        <p><strong>Author:</strong> Steven Reid (ORCID: 0009-0003-9132-3410)</p>
+        <p><strong>Reference:</strong> "RGE-256: A New ARX-Based Pseudorandom Number Generator With Structured Entropy and Empirical Validation"</p>
+    </div>
+</body>
+</html>
+                `;
+                
+                // Create blob and download
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rge256_report_${Date.now()}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Report downloaded!\n\nOpen the HTML file in your browser, then use File → Print → Save as PDF to create a PDF report.');
+                console.log('PDF report HTML generated successfully');
+                
+            } catch (e) {
+                console.error('PDF generation error:', e);
+                alert('❌ Failed to generate report: ' + e.message);
+            }
+        }
+        
+        // ========================================
+        // Export Functions
+        // ========================================
+        
+        function exportCSV() {
+            console.log('exportCSV called, generatedNumbers.length:', generatedNumbers.length);
+            if (generatedNumbers.length === 0) {
+                alert('Generate some numbers first!');
+                return;
+            }
+            
+            let csv = 'Index,Value\n';
+            generatedNumbers.forEach((num, idx) => {
+                csv += `${idx + 1},${num}\n`;
+            });
+            
+            console.log('CSV size:', csv.length, 'characters');
+            downloadFile(csv, `rge256_export_${Date.now()}.csv`, 'text/csv');
+            console.log('CSV download triggered');
+        }
+        
+        function exportJSON() {
+            console.log('exportJSON called, generatedNumbers.length:', generatedNumbers.length);
+            if (generatedNumbers.length === 0) {
+                alert('Generate some numbers first!');
+                return;
+            }
+            
+            const exportData = {
+                generator: 'RGE-256',
+                timestamp: new Date().toISOString(),
+                configuration: {
+                    seed: parseInt(document.getElementById('seed').value),
+                    rounds: parseInt(document.getElementById('rounds').value),
+                    zetas: [
+                        parseFloat(document.getElementById('zeta1').value),
+                        parseFloat(document.getElementById('zeta2').value),
+                        parseFloat(document.getElementById('zeta3').value)
+                    ],
+                    domain: document.getElementById('domain').value,
+                    range: document.getElementById('range').value,
+                    customRange: {
+                        min: parseInt(document.getElementById('rangeMin').value),
+                        max: parseInt(document.getElementById('rangeMax').value)
+                    }
+                },
+                statistics: {
+                    count: generatedNumbers.length,
+                    mean: generatedNumbers.reduce((a, b) => a + b, 0) / generatedNumbers.length,
+                    min: Math.min(...generatedNumbers),
+                    max: Math.max(...generatedNumbers)
+                },
+                numbers: generatedNumbers
+            };
+            
+            const json = JSON.stringify(exportData, null, 2);
+            console.log('JSON size:', json.length, 'characters');
+            downloadFile(json, `rge256_export_${Date.now()}.json`, 'application/json');
+            console.log('JSON download triggered');
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            console.log('downloadFile called:', filename, mimeType, 'content length:', content.length);
+            try {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a); // Add to DOM
+                a.click();
+                document.body.removeChild(a); // Remove from DOM
+                URL.revokeObjectURL(url);
+                console.log('Download complete');
+            } catch (e) {
+                console.error('Download error:', e);
+                alert('Download failed: ' + e.message);
+            }
+        }
+        
+        // ========================================
+        // Session Save/Load
+        // ========================================
+        
+        function saveSession() {
+            console.log('saveSession called');
+            try {
+                const session = {
+                    version: '1.0',
+                    timestamp: new Date().toISOString(),
+                    configuration: {
+                        seed: document.getElementById('seed').value,
+                        rounds: document.getElementById('rounds').value,
+                        zeta1: document.getElementById('zeta1').value,
+                        zeta2: document.getElementById('zeta2').value,
+                        zeta3: document.getElementById('zeta3').value,
+                        domain: document.getElementById('domain').value,
+                        count: document.getElementById('count').value,
+                        range: document.getElementById('range').value,
+                        rangeMin: document.getElementById('rangeMin').value,
+                        rangeMax: document.getElementById('rangeMax').value
+                    },
+                    generatedNumbers: generatedNumbers,
+                    totalGenerated: totalGenerated,
+                    diceHistory: diceHistory,
+                    coinHistory: coinHistory
+                };
+                
+                console.log('Session object created, size:', JSON.stringify(session).length);
+                localStorage.setItem('rge256_session', JSON.stringify(session));
+                console.log('Session saved to localStorage');
+                alert('✅ Session saved! Click "Load Session" to restore it later.');
+            } catch (e) {
+                console.error('Save session error:', e);
+                alert('❌ Failed to save session: ' + e.message);
+            }
+        }
+        
+        function loadSession() {
+            console.log('loadSession called');
+            try {
+                const saved = localStorage.getItem('rge256_session');
+                if (!saved) {
+                    console.log('No saved session found');
+                    alert('No saved session found. Save a session first!');
+                    return;
+                }
+                
+                console.log('Session found, size:', saved.length);
+                const session = JSON.parse(saved);
+                console.log('Session parsed successfully');
+                
+                // Restore configuration
+                document.getElementById('seed').value = session.configuration.seed;
+                document.getElementById('rounds').value = session.configuration.rounds;
+                document.getElementById('zeta1').value = session.configuration.zeta1;
+                document.getElementById('zeta2').value = session.configuration.zeta2;
+                document.getElementById('zeta3').value = session.configuration.zeta3;
+                document.getElementById('domain').value = session.configuration.domain;
+                document.getElementById('count').value = session.configuration.count;
+                document.getElementById('range').value = session.configuration.range;
+                document.getElementById('rangeMin').value = session.configuration.rangeMin;
+                document.getElementById('rangeMax').value = session.configuration.rangeMax;
+                
+                // Restore data
+                generatedNumbers = session.generatedNumbers || [];
+                totalGenerated = session.totalGenerated || 0;
+                diceHistory = session.diceHistory || [];
+                coinHistory = session.coinHistory || { heads: 0, tails: 0 };
+                
+                console.log('Configuration restored, numbers:', generatedNumbers.length);
+                
+                // Reinitialize
+                initializeGenerator();
+                
+                if (generatedNumbers.length > 0) {
+                    displayOutput();
+                    updateStatistics();
+                    updateVisualization();
+                }
+                
+                document.getElementById('perfTotal').textContent = totalGenerated.toLocaleString();
+                
+                console.log('Session restoration complete');
+                alert(`✅ Session restored!\n\nLoaded from: ${new Date(session.timestamp).toLocaleString()}\n${generatedNumbers.length.toLocaleString()} numbers restored.`);
+            } catch (e) {
+                console.error('Load session error:', e);
+                alert('❌ Error loading session: ' + e.message);
+            }
+        }
+        
+        // ========================================
+        // Advanced Statistics
+        // ========================================
+        
+        function calculateEntropy() {
+            if (generatedNumbers.length === 0) return;
+            
+            const range = document.getElementById('range').value;
+            
+            // For custom/small ranges, calculate entropy on the values themselves
+            // For u32/u16/u8, calculate entropy on bytes
+            if (range === 'custom' || range === 'u8' || range === 'u16') {
+                // Value-based entropy (more appropriate for discrete ranges)
+                const min = Math.min(...generatedNumbers);
+                const max = Math.max(...generatedNumbers);
+                const numValues = max - min + 1;
+                
+                // Count frequency of each value
+                const freq = new Array(numValues).fill(0);
+                generatedNumbers.forEach(n => {
+                    freq[n - min]++;
+                });
+                
+                // Calculate Shannon entropy
+                let entropy = 0;
+                const total = generatedNumbers.length;
+                freq.forEach(count => {
+                    if (count > 0) {
+                        const p = count / total;
+                        entropy -= p * Math.log2(p);
+                    }
+                });
+                
+                const maxEntropy = Math.log2(numValues);
+                
+                document.getElementById('entropyLabel').textContent = `Entropy (max ${maxEntropy.toFixed(2)} bits)`;
+                document.getElementById('entropyValue').textContent = entropy.toFixed(4);
+                document.getElementById('entropyPercent').textContent = ((entropy / maxEntropy) * 100).toFixed(2) + '%';
+                document.getElementById('entropyIdeal').textContent = 'Ideal = 100%';
+                
+                return entropy;
+            } else {
+                // Byte-based entropy for 32-bit numbers
+                const bytes = [];
+                generatedNumbers.forEach(n => {
+                    bytes.push(n & 0xFF);
+                    bytes.push((n >> 8) & 0xFF);
+                    bytes.push((n >> 16) & 0xFF);
+                    bytes.push((n >> 24) & 0xFF);
+                });
+                
+                // Count byte frequencies
+                const freq = new Array(256).fill(0);
+                bytes.forEach(b => freq[b]++);
+                
+                // Calculate Shannon entropy
+                let entropy = 0;
+                const total = bytes.length;
+                freq.forEach(count => {
+                    if (count > 0) {
+                        const p = count / total;
+                        entropy -= p * Math.log2(p);
+                    }
+                });
+                
+                document.getElementById('entropyLabel').textContent = 'Entropy (bits/byte)';
+                document.getElementById('entropyValue').textContent = entropy.toFixed(6);
+                document.getElementById('entropyPercent').textContent = ((entropy / 8.0) * 100).toFixed(2) + '%';
+                document.getElementById('entropyIdeal').textContent = 'Ideal = 8.0 bits/byte';
+                
+                return entropy;
+            }
+        }
+        
+        function kolmogorovSmirnovTest() {
+            if (generatedNumbers.length < 100) return;
+            
+            // Get min and max
+            const min = Math.min(...generatedNumbers);
+            const max = Math.max(...generatedNumbers);
+            const range = max - min;
+            
+            // Normalize to [0,1]
+            const normalized = generatedNumbers.map(n => (n - min) / range).sort((a, b) => a - b);
+            
+            // Calculate KS statistic (maximum distance from uniform CDF)
+            let maxD = 0;
+            normalized.forEach((value, i) => {
+                const empiricalCDF = (i + 1) / normalized.length;
+                const theoreticalCDF = value;
+                const d = Math.abs(empiricalCDF - theoreticalCDF);
+                maxD = Math.max(maxD, d);
+            });
+            
+            // Critical value at alpha=0.05 for large n
+            const criticalValue = 1.36 / Math.sqrt(generatedNumbers.length);
+            
+            document.getElementById('ksStatistic').textContent = maxD.toFixed(6);
+            
+            const badge = document.getElementById('ksBadge');
+            const interp = document.getElementById('ksInterpretation');
+            
+            if (maxD < criticalValue) {
+                badge.className = 'badge success';
+                badge.textContent = 'PASS';
+                interp.textContent = `D=${maxD.toFixed(4)} < ${criticalValue.toFixed(4)} (uniform)`;
+            } else {
+                badge.className = 'badge warning';
+                badge.textContent = 'WEAK';
+                interp.textContent = `D=${maxD.toFixed(4)} ≥ ${criticalValue.toFixed(4)} (non-uniform)`;
+            }
+            
+            return maxD;
+        }
+        
+        // ========================================
+        // Bit Transition Heatmap
+        // ========================================
+        
+        function drawBitTransitionHeatmap(ctx, canvas) {
+            const samples = Math.min(1000, generatedNumbers.length - 1);
+            const padding = 50;
+            const size = Math.min(canvas.width, canvas.height) - 2 * padding;
+            const cellSize = size / 32;
+            
+            // Count transitions (8-bit for visualization simplicity)
+            const transitions = Array(8).fill(0).map(() => Array(8).fill(0));
+            
+            for (let i = 0; i < samples; i++) {
+                const curr = generatedNumbers[i] & 0xFF;
+                const next = generatedNumbers[i + 1] & 0xFF;
+                
+                for (let bit = 0; bit < 8; bit++) {
+                    const currBit = (curr >> bit) & 1;
+                    const nextBit = (next >> bit) & 1;
+                    
+                    if (currBit === 0 && nextBit === 1) transitions[bit][0]++; // 0→1
+                    else if (currBit === 1 && nextBit === 0) transitions[bit][1]++; // 1→0
+                    else if (currBit === 0 && nextBit === 0) transitions[bit][2]++; // 0→0
+                    else transitions[bit][3]++; // 1→1
+                }
+            }
+            
+            // Normalize to percentages
+            const maxCount = Math.max(...transitions.flat());
+            
+            // Draw heatmap
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const transLabels = ['0→1', '1→0', '0→0', '1→1'];
+            
+            for (let bit = 0; bit < 8; bit++) {
+                for (let trans = 0; trans < 4; trans++) {
+                    const count = transitions[bit][trans];
+                    const intensity = count / maxCount;
+                    
+                    // Color based on intensity
+                    const r = Math.floor(intensity * 118 + 102);
+                    const g = Math.floor(intensity * 126 + 102);
+                    const b = Math.floor(intensity * 234 + 21);
+                    
+                    ctx.fillStyle = `rgb(${r},${g},${b})`;
+                    ctx.fillRect(
+                        padding + trans * cellSize * 2,
+                        padding + bit * cellSize * 2,
+                        cellSize * 2 - 2,
+                        cellSize * 2 - 2
+                    );
+                    
+                    // Draw count
+                    ctx.fillStyle = intensity > 0.5 ? 'white' : 'black';
+                    ctx.font = '10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(
+                        count.toString(),
+                        padding + trans * cellSize * 2 + cellSize,
+                        padding + bit * cellSize * 2 + cellSize
+                    );
+                }
+            }
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'right';
+            for (let bit = 0; bit < 8; bit++) {
+                ctx.fillText(`Bit ${bit}`, padding - 5, padding + bit * cellSize * 2 + cellSize);
+            }
+            
+            ctx.textAlign = 'center';
+            transLabels.forEach((label, i) => {
+                ctx.fillText(label, padding + i * cellSize * 2 + cellSize, padding - 10);
+            });
+            
+            document.getElementById('vizExplanation').innerHTML = 
+                `Bit transition heatmap (8 bits, ${samples} transitions). 
+                Shows frequency of bit changes between consecutive numbers. 
+                All transitions should appear roughly equally (uniform color). 
+                Brighter = more frequent.`;
+        }
+        
+        // ========================================
+        // Reset Functions
+        // ========================================
+        
+        function resetNumbers() {
+            generatedNumbers = [];
+            document.getElementById('output').textContent = 'Numbers cleared. Click "Generate Numbers" to create new random numbers.';
+            
+            // Clear statistics
+            document.getElementById('statCount').textContent = '0';
+            document.getElementById('statMean').textContent = '-';
+            document.getElementById('statMinMax').textContent = '- / -';
+            document.getElementById('statStdDev').textContent = '-';
+            document.getElementById('chiSquare').textContent = '-';
+            document.getElementById('chiExpected').textContent = '-';
+            
+            // Clear entropy
+            document.getElementById('entropyValue').textContent = '-';
+            document.getElementById('entropyPercent').textContent = '-';
+            document.getElementById('entropyLabel').textContent = 'Entropy';
+            
+            // Clear KS test
+            document.getElementById('ksStatistic').textContent = '-';
+            document.getElementById('ksBadge').textContent = '-';
+            document.getElementById('ksBadge').className = 'badge';
+            document.getElementById('ksInterpretation').textContent = '-';
+            
+            // Clear quick tests
+            document.getElementById('testResults').innerHTML = '';
+            
+            // Clear visualization
+            const canvas = document.getElementById('histogram');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#999';
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Generate numbers to see visualization', canvas.width / 2, canvas.height / 2);
+            
+            document.getElementById('vizExplanation').textContent = 'Generate numbers to see distribution analysis.';
+        }
+        
+        function resetAll() {
+            if (!confirm('Reset everything? This will clear all numbers and reset the generator to default settings.')) {
+                return;
+            }
+            
+            // Reset form values to defaults
+            document.getElementById('seed').value = '3405691';
+            document.getElementById('rounds').value = '3';
+            document.getElementById('zeta1').value = '1.585';
+            document.getElementById('zeta2').value = '1.926';
+            document.getElementById('zeta3').value = '1.262';
+            document.getElementById('domain').value = 'rge-demo';
+            document.getElementById('count').value = '100';
+            document.getElementById('range').value = 'custom';
+            document.getElementById('rangeMin').value = '1';
+            document.getElementById('rangeMax').value = '100';
+            document.getElementById('vizType').value = 'histogram';
+            
+            // Reset generator
+            generator = null;
+            totalGenerated = 0;
+            
+            // Reset stats
+            document.getElementById('perfTime').textContent = '-';
+            document.getElementById('perfSpeed').textContent = '-';
+            document.getElementById('perfTotal').textContent = '0';
+            document.getElementById('perfStatus').innerHTML = '<span class="badge warning">Not Initialized</span>';
+            document.getElementById('benchmarkResults').innerHTML = '';
+            
+            // Clear numbers
+            resetNumbers();
+            
+            // Show custom range group
+            document.getElementById('customRangeGroup').style.display = 'block';
+            
+            // Reinitialize
+            initializeGenerator();
+        }
+        
+        // ========================================
+        // Interactive Games/Simulations
+        // ========================================
+        
+        let diceHistory = [];
+        let coinHistory = { heads: 0, tails: 0 };
+        let cardsRemaining = 52;
+        
+        function rollDice() {
+            if (!generator) initializeGenerator();
+            
+            const numDice = parseInt(document.getElementById('numDice').value);
+            const rolls = [];
+            let sum = 0;
+            
+            for (let i = 0; i < numDice; i++) {
+                const roll = generator.nextRange(1, 6);
+                rolls.push(roll);
+                sum += roll;
+            }
+            
+            diceHistory.push(sum);
+            
+            // Display dice
+            let html = '<div class="dice-display">';
+            rolls.forEach(roll => {
+                html += `<div class="die">${roll}</div>`;
+            });
+            html += '</div>';
+            
+            html += `<div style="text-align: center; margin-top: 15px;">`;
+            html += `<div style="font-size: 1.5em; font-weight: bold; color: #667eea;">Total: ${sum}</div>`;
+            if (numDice > 1) {
+                html += `<div style="color: #6c757d; margin-top: 5px;">Individual rolls: ${rolls.join(', ')}</div>`;
+            }
+            html += `</div>`;
+            
+            document.getElementById('diceResult').innerHTML = html;
+            
+            // Update stats
+            document.getElementById('diceRollCount').textContent = diceHistory.length;
+            const avg = diceHistory.reduce((a, b) => a + b, 0) / diceHistory.length;
+            document.getElementById('diceAvg').textContent = avg.toFixed(2);
+        }
+        
+        function flipCoins() {
+            if (!generator) initializeGenerator();
+            
+            const numFlips = parseInt(document.getElementById('numFlips').value);
+            let heads = 0;
+            let tails = 0;
+            
+            const results = [];
+            for (let i = 0; i < numFlips; i++) {
+                const flip = generator.nextRange(0, 1);
+                results.push(flip);
+                if (flip === 0) heads++;
+                else tails++;
+            }
+            
+            coinHistory.heads += heads;
+            coinHistory.tails += tails;
+            
+            // Display result
+            let html = '';
+            
+            if (numFlips === 1) {
+                const result = heads === 1 ? 'HEADS' : 'TAILS';
+                const emoji = heads === 1 ? '👑' : '🦅';
+                html = `
+                    <div class="coin">${emoji}</div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div style="font-size: 1.5em; font-weight: bold; color: #667eea;">${result}</div>
+                    </div>
+                `;
+            } else {
+                // Show multiple flips
+                html = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">
+                            <span style="margin-right: 10px;">👑 ${heads}</span>
+                            <span>🦅 ${tails}</span>
+                        </div>
+                `;
+                
+                if (numFlips <= 100) {
+                    html += '<div style="display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-top: 10px;">';
+                    results.slice(0, 100).forEach(flip => {
+                        const emoji = flip === 0 ? '👑' : '🦅';
+                        html += `<span style="font-size: 1.2em;">${emoji}</span>`;
+                    });
+                    html += '</div>';
+                }
+                
+                html += `</div>`;
+            }
+            
+            document.getElementById('coinResult').innerHTML = html;
+            
+            // Update stats
+            const total = coinHistory.heads + coinHistory.tails;
+            const headsPercent = (coinHistory.heads / total * 100).toFixed(1);
+            const tailsPercent = (coinHistory.tails / total * 100).toFixed(1);
+            
+            document.getElementById('headsCount').textContent = coinHistory.heads;
+            document.getElementById('tailsCount').textContent = coinHistory.tails;
+            document.getElementById('headsPercent').textContent = headsPercent + '%';
+            document.getElementById('tailsPercent').textContent = tailsPercent + '%';
+            document.getElementById('headsProgress').style.width = headsPercent + '%';
+        }
+        
+        function drawCards() {
+            if (!generator) initializeGenerator();
+            
+            const numCards = parseInt(document.getElementById('numCards').value);
+            
+            // Create deck
+            const suits = ['♠', '♥', '♦', '♣'];
+            const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            const deck = [];
+            
+            suits.forEach(suit => {
+                ranks.forEach(rank => {
+                    deck.push({ rank, suit, isRed: suit === '♥' || suit === '♦' });
+                });
+            });
+            
+            // Fisher-Yates shuffle using RGE-256
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = generator.nextRange(0, i);
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            
+            // Draw cards
+            const drawn = deck.slice(0, numCards);
+            
+            // Display cards
+            let html = '<div class="card-display">';
+            drawn.forEach(card => {
+                const colorClass = card.isRed ? 'red' : 'black';
+                html += `<div class="playing-card ${colorClass}">${card.rank}${card.suit}</div>`;
+            });
+            html += '</div>';
+            
+            // Add poker hand detection for 5 cards
+            if (numCards === 5) {
+                const handName = evaluatePokerHand(drawn);
+                html += `<div style="text-align: center; margin-top: 15px; font-weight: bold; color: #667eea; font-size: 1.2em;">${handName}</div>`;
+            }
+            
+            document.getElementById('cardResult').innerHTML = html;
+            
+            // Update count
+            cardsRemaining -= numCards;
+            if (cardsRemaining < 0) cardsRemaining = 52 - Math.abs(cardsRemaining);
+            document.getElementById('cardsDrawnCount').textContent = 52 - cardsRemaining;
+        }
+        
+        function evaluatePokerHand(cards) {
+            // Simplified poker hand evaluation
+            const rankCounts = {};
+            const suitCounts = {};
+            
+            cards.forEach(card => {
+                rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+                suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1;
+            });
+            
+            const counts = Object.values(rankCounts).sort((a, b) => b - a);
+            const isFlush = Object.values(suitCounts).some(count => count === 5);
+            
+            if (counts[0] === 4) return '🎉 Four of a Kind!';
+            if (counts[0] === 3 && counts[1] === 2) return '🏠 Full House!';
+            if (isFlush) return '💎 Flush!';
+            if (counts[0] === 3) return '🎯 Three of a Kind!';
+            if (counts[0] === 2 && counts[1] === 2) return '👥 Two Pair!';
+            if (counts[0] === 2) return '👤 One Pair';
+            return '🃏 High Card';
+        }
+        
+        function generateLottery() {
+            if (!generator) initializeGenerator();
+            
+            const type = document.getElementById('lotteryType').value;
+            const [numBalls, maxNum] = type.split('-').map(Number);
+            
+            // Generate unique numbers
+            const numbers = new Set();
+            while (numbers.size < numBalls) {
+                numbers.add(generator.nextRange(1, maxNum));
+            }
+            
+            const sorted = Array.from(numbers).sort((a, b) => a - b);
+            
+            // Display
+            let html = '<div class="lottery-numbers">';
+            sorted.forEach(num => {
+                html += `<div class="lottery-ball">${num}</div>`;
+            });
+            html += '</div>';
+            
+            html += `<div style="text-align: center; margin-top: 10px; color: #6c757d;">`;
+            html += `Your numbers: ${sorted.join(', ')}`;
+            html += `</div>`;
+            
+            document.getElementById('lotteryResult').innerHTML = html;
+        }
+        
+        function generateMultipleLottery() {
+            if (!generator) initializeGenerator();
+            
+            const type = document.getElementById('lotteryType').value;
+            const [numBalls, maxNum] = type.split('-').map(Number);
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+            
+            for (let set = 0; set < 5; set++) {
+                const numbers = new Set();
+                while (numbers.size < numBalls) {
+                    numbers.add(generator.nextRange(1, maxNum));
+                }
+                const sorted = Array.from(numbers).sort((a, b) => a - b);
+                
+                html += `<div>`;
+                html += `<div style="font-weight: bold; margin-bottom: 5px; color: #495057;">Set ${set + 1}:</div>`;
+                html += '<div class="lottery-numbers" style="margin: 0;">';
+                sorted.forEach(num => {
+                    html += `<div class="lottery-ball" style="width: 35px; height: 35px; font-size: 0.9em;">${num}</div>`;
+                });
+                html += '</div></div>';
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('lotteryResult').innerHTML = html;
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initializeGenerator();
+            registerServiceWorker();
+            setupInstallPrompt();
+        });
+        
+        // ========================================
+        // PWA Service Worker Registration
+        // ========================================
+        
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker available
+                                    if (confirm('New version available! Reload to update?')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('[PWA] Service Worker registration failed:', error);
+                    });
+                
+                // Reload page when new service worker takes control
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                });
+            }
+        }
+        
+        // ========================================
+        // PWA Install Prompt
+        // ========================================
+        
+        let deferredPrompt;
+        
+        function setupInstallPrompt() {
+            // Listen for beforeinstallprompt event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('[PWA] Install prompt available');
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Show install button if not already installed
+                if (!window.matchMedia('(display-mode: standalone)').matches) {
+                    showInstallButton();
+                }
+            });
+            
+            // Check if already installed
+            window.addEventListener('appinstalled', () => {
+                console.log('[PWA] App installed');
+                hideInstallButton();
+                deferredPrompt = null;
+            });
+            
+            // Detect if running as installed app
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('[PWA] Running as installed app');
+            }
+        }
+        
+        function showInstallButton() {
+            // Create install button
+            const installButton = document.createElement('button');
+            installButton.id = 'installButton';
+            installButton.className = 'theme-toggle';
+            installButton.style.right = '340px';
+            installButton.textContent = '📱 Install App';
+            installButton.onclick = promptInstall;
+            
+            document.querySelector('.header').appendChild(installButton);
+        }
+        
+        function hideInstallButton() {
+            const installButton = document.getElementById('installButton');
+            if (installButton) {
+                installButton.remove();
+            }
+        }
+        
+        function promptInstall() {
+            if (!deferredPrompt) {
+                alert('App is already installed or installation is not available.');
+                return;
+            }
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('[PWA] User accepted install');
+                } else {
+                    console.log('[PWA] User dismissed install');
+                }
+                deferredPrompt = null;
+            });
+        }
+    </script>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📚 RGE-256 Help & Guide</h2>
+                <button class="close-button" onclick="closeHelp()">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="help-section">
+                    <h3>🎲 What is RGE-256?</h3>
+                    <p>RGE-256 is a 256-bit <strong>ARX-based pseudorandom number generator</strong> (Add-Rotate-XOR) with rotation constants derived from Recursive Division Tree (RDT) entropy analysis. It's designed for:</p>
+                    <ul>
+                        <li><strong>Simulations:</strong> Monte Carlo methods, statistical modeling</li>
+                        <li><strong>Games:</strong> Dice rolls, card shuffling, procedural generation</li>
+                        <li><strong>Research:</strong> Algorithm testing, randomness quality analysis</li>
+                        <li><strong>Education:</strong> Understanding PRNGs and statistical tests</li>
+                    </ul>
+                    <div class="interpretation-guide">
+                        <strong>⚠️ Not for cryptography!</strong> This generator has not been cryptographically analyzed and should NOT be used for security-critical applications like key generation, encryption, or authentication.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>📊 Understanding Statistics</h3>
+                    
+                    <div class="help-grid">
+                        <div class="help-card">
+                            <strong>Mean Value</strong>
+                            <p>Average of all generated numbers. Should be near the midpoint of your range.</p>
+                            <div class="interpretation-guide">
+                                <span class="good">✓ Good:</span> Within 1-2% of midpoint<br>
+                                <span class="warning">⚠ Warning:</span> 2-5% off<br>
+                                <span class="bad">✗ Bad:</span> More than 5% off
+                            </div>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Standard Deviation</strong>
+                            <p>Measures spread of values. Higher = more spread out.</p>
+                            <div class="interpretation-guide">
+                                For uniform distribution:<br>
+                                σ ≈ (max - min) / √12
+                            </div>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Shannon Entropy</strong>
+                            <p>Measures information content and randomness. Higher = more random.</p>
+                            <div class="interpretation-guide">
+                                <span class="good">✓ Excellent:</span> 98-100%<br>
+                                <span class="warning">⚠ Acceptable:</span> 95-98%<br>
+                                <span class="bad">✗ Poor:</span> Below 95%
+                            </div>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Chi-Square Test</strong>
+                            <p>Tests if distribution is uniform. Statistic should be close to expected value.</p>
+                            <div class="interpretation-guide">
+                                <span class="good">✓ Good:</span> Within 20% of expected<br>
+                                <span class="warning">⚠ Acceptable:</span> 20-40% off<br>
+                                <span class="bad">✗ Failed:</span> More than 40% off
+                            </div>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Kolmogorov-Smirnov Test</strong>
+                            <p>Tests uniformity by measuring maximum deviation from expected distribution.</p>
+                            <div class="interpretation-guide">
+                                <span class="good">✓ PASS:</span> D < critical value<br>
+                                <span class="warning">⚠ WEAK:</span> D ≥ critical value<br>
+                                Critical value: 1.36/√n
+                            </div>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Runs Test</strong>
+                            <p>Checks for patterns in sequences (runs above/below median).</p>
+                            <div class="interpretation-guide">
+                                Tests independence of consecutive values
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>📈 Visualizations Explained</h3>
+                    
+                    <div class="help-card" style="margin-bottom: 15px;">
+                        <strong>Histogram</strong>
+                        <p>Shows distribution of generated values across bins.</p>
+                        <ul>
+                            <li><span class="good">Green bars:</span> Within 20% of expected count</li>
+                            <li><span class="warning">Yellow bars:</span> 20-40% deviation</li>
+                            <li><span class="bad">Red bars:</span> More than 40% deviation</li>
+                        </ul>
+                        <p><strong>Red line:</strong> Expected average per bin for uniform distribution</p>
+                        <p><strong>Tip:</strong> Use 1,000+ numbers for clear histograms</p>
+                    </div>
+
+                    <div class="help-card" style="margin-bottom: 15px;">
+                        <strong>Bit Pattern Analysis</strong>
+                        <p>Shows percentage of 1s at each bit position (0-31).</p>
+                        <ul>
+                            <li><span class="good">Green bars:</span> Within 2% of 50%</li>
+                            <li><span class="warning">Yellow bars:</span> 2-5% off from 50%</li>
+                            <li><span class="bad">Red bars:</span> More than 5% off</li>
+                        </ul>
+                        <p><strong>Red line:</strong> 50% (ideal balance)</p>
+                        <p><strong>Tip:</strong> Works best with 32-bit range, use 10,000+ numbers</p>
+                    </div>
+
+                    <div class="help-card" style="margin-bottom: 15px;">
+                        <strong>Scatter Plot</strong>
+                        <p>Plots numbers in sequence. Should look random with no visible patterns.</p>
+                        <p><strong>Warning signs:</strong> Lines, clusters, or obvious structure</p>
+                    </div>
+
+                    <div class="help-card">
+                        <strong>Bit Transition Heatmap</strong>
+                        <p>Shows frequency of bit changes between consecutive numbers.</p>
+                        <p>All transition types (0→1, 1→0, 0→0, 1→1) should occur with similar frequency.</p>
+                        <p><strong>Good:</strong> Uniform color across all cells</p>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>⚙️ Configuration Parameters</h3>
+                    
+                    <div class="help-grid">
+                        <div class="help-card">
+                            <strong>Seed</strong>
+                            <p>Starting value for the sequence. Same seed = same sequence (reproducible).</p>
+                            <p><strong>Range:</strong> 0 to 2<sup>53</sup>-1</p>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Rounds</strong>
+                            <p>Number of mixing rounds per generation.</p>
+                            <ul>
+                                <li><strong>3 rounds:</strong> Fast, good quality (default)</li>
+                                <li><strong>4 rounds:</strong> Better mixing</li>
+                                <li><strong>5 rounds:</strong> Maximum quality, slower</li>
+                            </ul>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>ζ Parameters</strong>
+                            <p>Rotation constants derived from RDT entropy:</p>
+                            <ul>
+                                <li><strong>ζ₁ (1.585):</strong> Triangle entropy</li>
+                                <li><strong>ζ₂ (1.926):</strong> Menger-like entropy</li>
+                                <li><strong>ζ₃ (1.262):</strong> Tetrahedral entropy</li>
+                            </ul>
+                            <p><strong>Tip:</strong> Use defaults unless experimenting</p>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Domain Separation</strong>
+                            <p>Optional string mixed into initialization.</p>
+                            <p>Same seed + different domain = different independent sequences.</p>
+                            <p><strong>Use case:</strong> Multiple independent random streams</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>💡 Tips for Best Results</h3>
+                    <ul>
+                        <li><strong>Sample size matters:</strong> Use 1,000+ for visualizations, 10,000+ for statistical tests</li>
+                        <li><strong>Histogram:</strong> Best with custom ranges (1-100, 1-1000)</li>
+                        <li><strong>Bit patterns:</strong> Best with 32-bit unsigned range</li>
+                        <li><strong>Reproducibility:</strong> Save your session or record seed/configuration</li>
+                        <li><strong>Comparison:</strong> Generate same count with different seeds to compare quality</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>📤 Export Options</h3>
+                    <div class="help-grid">
+                        <div class="help-card">
+                            <strong>Download TXT</strong>
+                            <p>Simple text file with one number per line.</p>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Export CSV</strong>
+                            <p>Spreadsheet format with Index and Value columns.</p>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Export JSON</strong>
+                            <p>Complete data with configuration, statistics, and all numbers.</p>
+                        </div>
+
+                        <div class="help-card">
+                            <strong>Export PDF Report</strong>
+                            <p>Professional report with all statistics, visualizations, and interpretations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>📚 Citation</h3>
+                    <p>If you use RGE-256 in your research:</p>
+                    <div class="help-card">
+                        <strong>Paper:</strong> "RGE-256: A New ARX-Based Pseudorandom Number Generator With Structured Entropy and Empirical Validation"<br>
+                        <strong>Author:</strong> Steven Reid<br>
+                        <strong>ORCID:</strong> 0009-0003-9132-3410<br>
+                        <strong>Related Work:</strong> Recursive Division Tree entropy analysis (DOI: 10.5281/zenodo.17682287)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

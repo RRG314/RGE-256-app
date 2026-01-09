@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RGE-256 Random Number Generator - Interactive Demo</title>
+    <title>RGE-256-Safe Random Number Generator - Interactive Demo</title>
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="Professional pseudorandom number generator with ARX architecture and geometric entropy. Generate, analyze, and test random numbers with comprehensive statistical analysis.">
@@ -568,8 +568,8 @@
         <div class="header">
             <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
             <button class="theme-toggle" onclick="showHelp()" style="right: 180px;">❓ Help</button>
-            <h1>🎲 RGE-256 Random Number Generator</h1>
-            <p>ARX-Based PRNG with Geometric Entropy</p>
+            <h1>🎲 RGE-256-Safe Random Number Generator</h1>
+            <p>ARX-Based PRNG with 64-bit Counter (No Bad Seeds)</p>
         </div>
 
         <div class="main-content">
@@ -1093,15 +1093,94 @@
             return [(h1 >>> 0), (h2 >>> 0)];
         }
 
+        // Helper functions for 32-bit operations
+        function add32(a, b) {
+            return (a + b) >>> 0;
+        }
+
+        class RGE256Safe {
+            /**
+             * RGE256-Lite-SAFE:
+             * Same ARX core as Lite, but includes a 64-bit counter to eliminate cycles
+             * and guarantee a minimum period of 2^64. No bad seeds.
+             */
+            constructor(seed, rounds = 3, zetas = [1.585, 1.926, 1.262], domain = "rge-demo") {
+                this.rounds = rounds;
+
+                // Initialize state from seed using simple PRNG
+                this.s = new Uint32Array(8);
+                let x = seed >>> 0;
+                for (let i = 0; i < 8; i++) {
+                    x ^= x << 13;
+                    x ^= x >>> 17;
+                    x ^= x << 5;
+                    x = (x + 0x9E3779B9) >>> 0;
+                    this.s[i] = x;
+                }
+
+                // 64-bit counter (stored as two 32-bit values)
+                this.counterLow = 0;
+                this.counterHigh = 0;
+            }
+
+            next32() {
+                const s = this.s;
+
+                // Run ARX rounds
+                for (let round = 0; round < this.rounds; round++) {
+                    // Pair operations with rotations
+                    s[0] = add32(s[0], s[1]);
+                    s[1] = rotl32(s[1] ^ s[0], 7);
+
+                    s[2] = add32(s[2], s[3]);
+                    s[3] = rotl32(s[3] ^ s[2], 9);
+
+                    s[4] = add32(s[4], s[5]);
+                    s[5] = rotl32(s[5] ^ s[4], 13);
+
+                    s[6] = add32(s[6], s[7]);
+                    s[7] = rotl32(s[7] ^ s[6], 18);
+
+                    // Cross-mixing
+                    s[0] ^= s[4];
+                    s[1] ^= s[5];
+                    s[2] ^= s[6];
+                    s[3] ^= s[7];
+                }
+
+                // Increment 64-bit counter
+                this.counterLow = (this.counterLow + 1) >>> 0;
+                if (this.counterLow === 0) {
+                    this.counterHigh = (this.counterHigh + 1) >>> 0;
+                }
+
+                // Mix counter into output
+                const c0 = this.counterLow;
+                const c1 = this.counterHigh;
+
+                return (s[0] ^ rotl32(s[4], 13) ^ c0 ^ rotl32(c1, 7)) >>> 0;
+            }
+
+            nextFloat() {
+                return this.next32() / 0x100000000;
+            }
+
+            nextRange(min, max) {
+                const range = max - min + 1;
+                return min + (this.next32() % range);
+            }
+        }
+
+        // Keep the old RGE256 class for reference (but not used)
         class RGE256 {
             constructor(seed, rounds = 3, zetas = [1.585, 1.926, 1.262], domain = "rge-demo") {
                 this.rounds = rounds;
                 this.zetas = zetas;
-                
+
                 // Initialize state from seed
                 const [h1, h2] = simpleHash(seed.toString() + domain);
                 const state = new Uint32Array(16);
-                
+
                 // Fill state with pseudo-random values
                 let x = seed >>> 0;
                 for (let i = 0; i < 16; i++) {
@@ -1111,7 +1190,7 @@
                     x = (x + h1 + h2 * i) >>> 0;
                     state[i] = x;
                 }
-                
+
                 this.s0 = state[0];
                 this.s1 = state[1];
                 this.s2 = state[2];
@@ -1120,31 +1199,31 @@
                 this.s5 = state[5];
                 this.s6 = state[6];
                 this.s7 = state[7];
-                
+
                 // Derive rotation constants from zetas
                 const [tri, meng, tet] = zetas;
                 const base = [
-                    tri, meng, tet, 
+                    tri, meng, tet,
                     (tri + meng + tet) / 3.0,
                     tri + 0.5, meng + 0.75, tet + 0.25,
                     (tri * 1.25 + tet * 0.75) / 2
                 ];
                 this.r = base.map((z, i) => Math.max(1, Math.floor(Math.abs(z * 977 + (i * 7 + 13)) % 31) || 1));
-                
+
                 // Derive key constants
-                const kbase = [0x9E3779B9, 0x517CC1B7, 0xC2B2AE35, 0x165667B1, 
+                const kbase = [0x9E3779B9, 0x517CC1B7, 0xC2B2AE35, 0x165667B1,
                               0x85EBCA77, 0x27D4EB2F, 0xDE5FB9D7, 0x94D049BB];
                 this.k = kbase.map((k, i) => (k ^ state[8 + i]) >>> 0);
-                
+
                 // Warm up
                 for (let i = 0; i < 10; i++) this._step();
             }
-            
+
             _step() {
                 let s0 = this.s0, s1 = this.s1, s2 = this.s2, s3 = this.s3;
                 let s4 = this.s4, s5 = this.s5, s6 = this.s6, s7 = this.s7;
                 const [r0, r1, r2, r3, r4, r5, r6, r7] = this.r;
-                
+
                 // Quad A
                 s0 = (s0 + s1 + this.k[0]) >>> 0;
                 s1 = rotl32(s1 ^ s0, r0);
@@ -1155,7 +1234,7 @@
                 s2 = (s2 + rotl32(tA1, r3) + this.k[3]) >>> 0;
                 s1 ^= rotl32(s0, (r0 + r2) % 31 || 1);
                 s3 ^= rotl32(s2, (r1 + r3) % 31 || 1);
-                
+
                 // Quad B
                 s4 = (s4 + s5 + this.k[4]) >>> 0;
                 s5 = rotl32(s5 ^ s4, r4);
@@ -1166,7 +1245,7 @@
                 s6 = (s6 + rotl32(tB1, r7) + this.k[7]) >>> 0;
                 s5 ^= rotl32(s4, (r4 + r6) % 31 || 1);
                 s7 ^= rotl32(s6, (r5 + r7) % 31 || 1);
-                
+
                 // Cross-couple + global fold
                 s1 ^= rotl32(s5, 13);
                 s3 ^= rotl32(s7, 7);
@@ -1181,22 +1260,22 @@
                 s5 ^= rotl32(s1, 23);
                 s6 ^= rotl32(s2, 29);
                 s7 ^= rotl32(s3, 31);
-                
+
                 this.s0 = s0; this.s1 = s1; this.s2 = s2; this.s3 = s3;
                 this.s4 = s4; this.s5 = s5; this.s6 = s6; this.s7 = s7;
             }
-            
+
             next32() {
                 for (let i = 0; i < this.rounds; i++) {
                     this._step();
                 }
                 return (this.s0 ^ rotl32(this.s4, 13)) >>> 0;
             }
-            
+
             nextFloat() {
                 return this.next32() / 0x100000000;
             }
-            
+
             nextRange(min, max) {
                 const range = max - min + 1;
                 return min + (this.next32() % range);
@@ -1224,12 +1303,12 @@
             const zeta3 = parseFloat(document.getElementById('zeta3').value);
             const domain = document.getElementById('domain').value;
             
-            generator = new RGE256(seed, rounds, [zeta1, zeta2, zeta3], domain);
+            generator = new RGE256Safe(seed, rounds, [zeta1, zeta2, zeta3], domain);
             
             document.getElementById('perfStatus').innerHTML = '<span class="badge success">Ready</span>';
             document.getElementById('output').textContent = 'Generator initialized! Click "Generate Numbers" to create random numbers.';
             
-            console.log('RGE-256 initialized:', { seed, rounds, zetas: [zeta1, zeta2, zeta3], domain });
+            console.log('RGE-256-Safe initialized:', { seed, rounds, zetas: [zeta1, zeta2, zeta3], domain });
         }
         
         function randomizeSeed() {
@@ -1357,7 +1436,7 @@
                     const zeta3 = parseFloat(document.getElementById('zeta3').value);
                     const domain = document.getElementById('domain').value;
                     
-                    const tempGen = new RGE256(seed, rounds, [zeta1, zeta2, zeta3], domain);
+                    const tempGen = new RGE256Safe(seed, rounds, [zeta1, zeta2, zeta3], domain);
                     const trueFloats = [];
                     for (let i = 0; i < Math.min(1000, generatedNumbers.length); i++) {
                         const raw32 = tempGen.next32();
@@ -1768,7 +1847,7 @@
                 let output = '<div class="stat-grid" style="margin-top: 15px;">';
                 
                 testSizes.forEach(size => {
-                    const testGen = new RGE256(Date.now(), 3, [1.585, 1.926, 1.262], "benchmark");
+                    const testGen = new RGE256Safe(Date.now(), 3, [1.585, 1.926, 1.262], "benchmark");
                     const start = performance.now();
                     
                     for (let i = 0; i < size; i++) {
@@ -1991,7 +2070,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>🎲 RGE-256 Test Report</h1>
+        <h1>🎲 RGE-256-Safe Test Report</h1>
         <p>Pseudorandom Number Generator Analysis</p>
         <p>${timestamp}</p>
     </div>

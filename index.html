@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RGE-256-Safe Random Number Generator - Interactive Demo</title>
+    <title>RGE256 Demo</title>
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="Professional pseudorandom number generator with ARX architecture and geometric entropy. Generate, analyze, and test random numbers with comprehensive statistical analysis.">
@@ -568,8 +568,8 @@
         <div class="header">
             <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
             <button class="theme-toggle" onclick="showHelp()" style="right: 180px;">❓ Help</button>
-            <h1>🎲 RGE-256-Safe Random Number Generator</h1>
-            <p>ARX-Based PRNG with 64-bit Counter (No Bad Seeds)</p>
+            <h1>🎲 RGE256 Demo</h1>
+            <p>ARX-Based PRNG with 64-bit Counter</p>
         </div>
 
         <div class="main-content">
@@ -2630,6 +2630,43 @@
             
             // Show custom range group
             document.getElementById('customRangeGroup').style.display = 'block';
+            
+            // ====== RESET GAMES ======
+            
+            // Reset dice game
+            diceHistory = [];
+            document.getElementById('diceRollCount').textContent = '0';
+            document.getElementById('diceAvg').textContent = '-';
+            document.getElementById('diceResult').innerHTML = `
+                <div style="font-size: 3em; text-align: center; padding: 20px;">🎲</div>
+                <div style="text-align: center; color: #6c757d;">Click "Roll Dice" to start!</div>
+            `;
+            
+            // Reset coin game
+            coinHistory = { heads: 0, tails: 0 };
+            document.getElementById('headsCount').textContent = '0';
+            document.getElementById('tailsCount').textContent = '0';
+            document.getElementById('headsPercent').textContent = '0%';
+            document.getElementById('tailsPercent').textContent = '0%';
+            document.getElementById('headsProgress').style.width = '50%';
+            document.getElementById('coinResult').innerHTML = `
+                <div style="font-size: 3em; text-align: center; padding: 20px;">🪙</div>
+                <div style="text-align: center; color: #6c757d;">Click "Flip Coins" to start!</div>
+            `;
+            
+            // Reset card game
+            cardsRemaining = 52;
+            document.getElementById('cardsDrawnCount').textContent = '0';
+            document.getElementById('cardResult').innerHTML = `
+                <div style="font-size: 3em; text-align: center; padding: 20px;">🃏</div>
+                <div style="text-align: center; color: #6c757d;">Click "Draw Cards" to start!</div>
+            `;
+            
+            // Reset lottery
+            document.getElementById('lotteryResult').innerHTML = `
+                <div style="font-size: 3em; text-align: center; padding: 20px;">🎰</div>
+                <div style="text-align: center; color: #6c757d;">Click "Generate Numbers" to play!</div>
+            `;
             
             // Reinitialize
             initializeGenerator();

@@ -2,7 +2,7 @@
   "name": "RGE-256 Random Number Generator",
   "short_name": "RGE-256",
   "description": "Professional pseudorandom number generator with ARX architecture and geometric entropy",
-  "start_url": "./rge256_demo.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",

@@ -1,7 +1,7 @@
 // Service Worker for RGE-256 PWA
 const CACHE_NAME = 'rge256-v1';
 const urlsToCache = [
-  './rge256_demo.html',
+  './index.html',
   './manifest.json'
 ];
 

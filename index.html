@@ -29,50 +29,62 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #eef3f8;
+            color: #172033;
             min-height: 100vh;
-            padding: 20px;
+            padding: 18px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: #ffffff;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #122033;
             color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 26px 30px;
+            text-align: left;
             position: relative;
         }
 
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-end;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.15em;
+            margin-bottom: 8px;
+            max-width: calc(100% - 420px);
         }
 
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+            max-width: min(760px, calc(100% - 420px));
         }
 
         .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
             background: rgba(255,255,255,0.2);
             border: 2px solid white;
             color: white;
             padding: 8px 16px;
-            border-radius: 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         .theme-toggle:hover {
@@ -304,17 +316,140 @@
             padding: 30px;
         }
 
+        .workspace-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 14px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #d8e0ea;
+        }
+
+        .workspace-tab {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: #526070;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0;
+            padding: 10px 14px;
+            text-align: center;
+            text-transform: none;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .workspace-tab:hover,
+        .workspace-tab.active {
+            background: #e9f7f6;
+            border-color: #9edbd5;
+            color: #0f766e;
+        }
+
+        body[data-active-view] .main-content > [data-view] {
+            display: none;
+        }
+
+        body[data-active-view="generate"] .main-content > [data-view~="generate"],
+        body[data-active-view="results"] .main-content > [data-view~="results"],
+        body[data-active-view="explain"] .main-content > [data-view~="explain"],
+        body[data-active-view="testing"] .main-content > [data-view~="testing"],
+        body[data-active-view="demos"] .main-content > [data-view~="demos"] {
+            display: block;
+        }
+
+        body[data-active-view="explain"] .main-content > .doc-grid[data-view~="explain"],
+        body[data-active-view="testing"] .main-content > .doc-grid[data-view~="testing"] {
+            display: grid;
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
         }
 
+        @media (max-width: 760px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 24px 24px;
+            }
+
+            .header-actions {
+                justify-content: flex-start;
+                margin-bottom: 18px;
+                position: static;
+            }
+
+            .header h1 {
+                font-size: 2em;
+                max-width: none;
+            }
+
+            .header p {
+                max-width: none;
+            }
+
+            .workspace-nav {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                padding: 12px 14px;
+            }
+
+            .workspace-tab {
+                min-height: 44px;
+                padding: 10px 8px;
+                width: 100%;
+            }
+
+            .workspace-tab:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .main-content {
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .panel,
+            .view-intro,
+            .doc-card {
+                padding: 16px;
+            }
+
+            .panel h2,
+            .view-intro h2 {
+                font-size: 1.35em;
+                line-height: 1.2;
+            }
+
+            .doc-grid,
+            .stat-grid,
+            .button-group,
+            .range-inputs,
+            .quick-counts {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-counts {
+                display: grid;
+            }
+
+            .theme-toggle,
+            .main-content button {
+                padding: 12px 14px;
+            }
+        }
+
         .panel {
             background: #f8f9fa;
-            border-radius: 15px;
+            border-radius: 8px;
             padding: 25px;
-            border: 2px solid #e9ecef;
+            border: 1px solid #dfe5ec;
         }
 
         .panel h2 {
@@ -327,7 +462,7 @@
         }
 
         .panel h2::before {
-            content: "⚙️";
+            display: none;
         }
 
         .panel.output h2::before {
@@ -387,16 +522,34 @@
             grid-template-columns: 1fr;
         }
 
+        .quick-counts {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .quick-counts button {
+            flex: 1;
+            font-size: 0.9em;
+            padding: 8px 10px;
+        }
+
+        .range-inputs {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr 1fr;
+        }
+
         button {
             padding: 15px 30px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-transform: none;
+            letter-spacing: 0;
         }
 
         button.primary {
@@ -519,6 +672,254 @@
             margin-bottom: 10px;
         }
 
+        .view-intro {
+            background: #ffffff;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            grid-column: 1 / -1;
+            padding: 22px 24px;
+        }
+
+        .view-intro h2 {
+            color: #122033;
+            margin-bottom: 8px;
+        }
+
+        .view-intro h2::before {
+            content: "";
+        }
+
+        .view-intro p {
+            color: #526070;
+            line-height: 1.6;
+            max-width: 950px;
+        }
+
+        .doc-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .doc-card {
+            background: #ffffff;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .doc-card h3 {
+            color: #122033;
+            margin-bottom: 10px;
+        }
+
+        .doc-card p,
+        .doc-card li {
+            color: #526070;
+            line-height: 1.65;
+        }
+
+        .doc-card ul,
+        .doc-card ol {
+            margin-left: 20px;
+        }
+
+        .code-block {
+            background: #122033;
+            border-radius: 8px;
+            color: #d6fff8;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 12px;
+            overflow-x: auto;
+            padding: 14px;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .flow-diagram {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            margin-top: 12px;
+        }
+
+        .flow-node {
+            background: #eef7ff;
+            border: 1px solid #b7d7f4;
+            border-radius: 8px;
+            color: #17324d;
+            font-size: 0.92em;
+            font-weight: 700;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .callout {
+            background: #fff8e6;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            color: #624004;
+            margin-top: 14px;
+            padding: 14px;
+        }
+
+        .results-ledger {
+            border: 1px solid #dfe5ec;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .results-ledger table {
+            border-collapse: collapse;
+            min-width: 720px;
+            width: 100%;
+        }
+
+        .results-ledger th,
+        .results-ledger td {
+            border-bottom: 1px solid #e6ebf1;
+            padding: 11px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .results-ledger th {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 0.82em;
+            text-transform: uppercase;
+        }
+
+        .results-ledger tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .status-pill {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 999px;
+            color: #9a3412;
+            display: inline-flex;
+            font-size: 0.82em;
+            font-weight: 700;
+            padding: 4px 9px;
+            white-space: nowrap;
+        }
+
+        .demo-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        @media (max-width: 760px) {
+            .results-ledger {
+                border: 0;
+            }
+
+            .results-ledger table,
+            .results-ledger thead,
+            .results-ledger tbody,
+            .results-ledger tr,
+            .results-ledger td {
+                display: block;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .results-ledger thead {
+                display: none;
+            }
+
+            .results-ledger tr {
+                border: 1px solid #dfe5ec;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                overflow: hidden;
+            }
+
+            .results-ledger td {
+                border-bottom: 1px solid #e6ebf1;
+                display: grid;
+                gap: 4px;
+                padding: 10px 12px;
+            }
+
+            .results-ledger td::before {
+                color: #526070;
+                content: attr(data-label);
+                font-size: 0.78em;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+
+            .code-block {
+                font-size: 12px;
+                line-height: 1.55;
+                padding: 12px;
+            }
+
+            .output-box {
+                font-size: 12px;
+                padding: 14px;
+                word-break: break-word;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        body.dark-mode .workspace-nav,
+        body.dark-mode .view-intro,
+        body.dark-mode .doc-card {
+            background: #16213e;
+            border-color: #1a1a2e;
+        }
+
+        body.dark-mode .workspace-tab {
+            color: #d8deea;
+        }
+
+        body.dark-mode .workspace-tab:hover,
+        body.dark-mode .workspace-tab.active {
+            background: #0f3460;
+            border-color: #4ecca3;
+            color: #4ecca3;
+        }
+
+        body.dark-mode .view-intro h2,
+        body.dark-mode .doc-card h3 {
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .view-intro p,
+        body.dark-mode .doc-card p,
+        body.dark-mode .doc-card li {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .results-ledger {
+            border-color: #374151;
+        }
+
+        body.dark-mode .results-ledger th {
+            background: #111827;
+            color: #d1d5db;
+        }
+
+        body.dark-mode .results-ledger td {
+            border-bottom-color: #374151;
+        }
+
+        body.dark-mode .status-pill {
+            background: #3b2a16;
+            border-color: #8a5a19;
+            color: #fed7aa;
+        }
+
         .progress-bar {
             width: 100%;
             height: 8px;
@@ -563,23 +964,38 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
-            <button class="theme-toggle" onclick="showHelp()" style="right: 180px;">❓ Help</button>
-            <h1>🎲 RGE256 Demo</h1>
-            <p>ARX-Based PRNG with 64-bit Counter</p>
-        </div>
+	<body data-active-view="generate">
+	    <div class="container">
+	        <div class="header">
+	            <div class="header-actions">
+	                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+	                <button class="theme-toggle" onclick="showHelp()">❓ Help</button>
+	            </div>
+	            <h1>RGE-256 Workbench</h1>
+	            <p>A browser-native RGE256Safe generator, analysis surface, implementation guide, and external statistical-test launchpad.</p>
+	        </div>
+
+        <nav class="workspace-nav" aria-label="RGE-256 workspace">
+            <button class="workspace-tab active" data-view-button="generate" onclick="switchView('generate')">Generate</button>
+            <button class="workspace-tab" data-view-button="results" onclick="switchView('results')">Results</button>
+            <button class="workspace-tab" data-view-button="explain" onclick="switchView('explain')">PRNG Guide</button>
+            <button class="workspace-tab" data-view-button="testing" onclick="switchView('testing')">External Testing</button>
+            <button class="workspace-tab" data-view-button="demos" onclick="switchView('demos')">Demos</button>
+        </nav>
 
         <div class="main-content">
+            <div class="view-intro" data-view="generate">
+                <h2>Generate Reproducible Streams</h2>
+                <p>Set the seed, mixing rounds, zeta parameters, and domain. The browser output is deterministic for the same configuration, and the Random Seed button now initializes a fresh RGE256Safe stream immediately.</p>
+            </div>
+
             <!-- Configuration Panel -->
-            <div class="panel">
+            <div class="panel" data-view="generate">
                 <h2>Generator Configuration</h2>
                 
                 <div class="info-box">
                     <h3>What is RGE-256?</h3>
-                    <p>A 256-bit ARX-based pseudorandom number generator with rotation constants derived from Recursive Division Tree entropy analysis.</p>
+                    <p>This app generates values with the in-page <strong>RGE256Safe</strong> PRNG: a 256-bit ARX state, fixed rotations, and a 64-bit counter mixed into every 32-bit output. Browser entropy is used only when you ask the app to suggest a new seed.</p>
                 </div>
 
                 <div class="control-group">
@@ -629,7 +1045,7 @@
             </div>
 
             <!-- Generation Panel -->
-            <div class="panel">
+            <div class="panel" data-view="generate">
                 <h2>Number Generation</h2>
 
                 <div class="tabs">
@@ -639,15 +1055,15 @@
                     <button class="tab" onclick="switchTab('floats')">Floats (0-1)</button>
                 </div>
 
-                <div class="control-group">
-                    <label>How Many to Generate?</label>
-                    <input type="number" id="count" value="1000" min="1" max="100000">
-                    <small>💡 For good visualizations: use 1,000+ numbers. For statistical tests: use 10,000+</small>
-                    <div style="display: flex; gap: 5px; margin-top: 8px;">
-                        <button onclick="document.getElementById('count').value=100" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">100</button>
-                        <button onclick="document.getElementById('count').value=1000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">1K</button>
-                        <button onclick="document.getElementById('count').value=10000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">10K</button>
-                        <button onclick="document.getElementById('count').value=50000" style="padding: 5px 10px; font-size: 0.85em;" class="secondary">50K</button>
+	                <div class="control-group">
+	                    <label>How Many to Generate?</label>
+	                    <input type="number" id="count" value="1000" min="1" max="100000">
+	                    <small>💡 For good visualizations: use 1,000+ numbers. For statistical tests: use 10,000+</small>
+	                    <div class="quick-counts">
+	                        <button onclick="document.getElementById('count').value=100" class="secondary">100</button>
+	                        <button onclick="document.getElementById('count').value=1000" class="secondary">1K</button>
+	                        <button onclick="document.getElementById('count').value=10000" class="secondary">10K</button>
+	                        <button onclick="document.getElementById('count').value=50000" class="secondary">50K</button>
                     </div>
                 </div>
 
@@ -662,12 +1078,12 @@
                     <small>💡 For true continuous floats (0.0-1.0), use 32-bit Unsigned then switch to Floats tab</small>
                 </div>
 
-                <div class="control-group" id="customRangeGroup">
-                    <label>Custom Range (Min - Max)</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <input type="number" id="rangeMin" value="1" placeholder="Min">
-                        <input type="number" id="rangeMax" value="100" placeholder="Max">
-                    </div>
+	                <div class="control-group" id="customRangeGroup">
+	                    <label>Custom Range (Min - Max)</label>
+	                    <div class="range-inputs">
+	                        <input type="number" id="rangeMin" value="1" placeholder="Min">
+	                        <input type="number" id="rangeMax" value="100" placeholder="Max">
+	                    </div>
                 </div>
 
                 <div class="button-group">
@@ -692,7 +1108,12 @@
             </div>
 
             <!-- Statistics Panel -->
-            <div class="panel stats">
+            <div class="view-intro" data-view="results">
+                <h2>Inspect Output Quality</h2>
+                <p>These browser checks are quick diagnostics for exploration. They are not a substitute for PractRand, dieharder, TestU01 Crush, or other full statistical batteries.</p>
+            </div>
+
+            <div class="panel stats" data-view="results">
                 <h2>Statistical Analysis</h2>
                 
                 <div class="stat-grid">
@@ -760,7 +1181,7 @@
             </div>
 
             <!-- Visualization Panel -->
-            <div class="panel visualization">
+            <div class="panel visualization" data-view="results">
                 <h2>Distribution Visualization</h2>
                 
                 <canvas id="histogram"></canvas>
@@ -782,7 +1203,7 @@
             </div>
 
             <!-- Performance Panel -->
-            <div class="panel full-width">
+            <div class="panel full-width" data-view="results">
                 <h2>Performance & Benchmarks</h2>
                 
                 <div class="stat-grid">
@@ -815,12 +1236,187 @@
                 </div>
             </div>
 
+            <div class="view-intro" data-view="explain">
+                <h2>RGE256Safe PRNG Guide</h2>
+                <p>This tab explains what the browser generator does, what each control changes, and how to discuss the algorithm professionally without overstating it. RGE256Safe is deterministic, seedable, and intended for simulation, teaching, and research-facing experiments, not cryptography.</p>
+            </div>
+
+            <div class="doc-grid full-width" data-view="explain">
+                <section class="panel doc-card">
+                    <h3>What A PRNG Does</h3>
+                    <p>A pseudorandom number generator is a deterministic state machine. It starts from a seed, repeatedly updates an internal state, and emits numbers that should look pattern-free under statistical inspection.</p>
+                    <div class="flow-diagram">
+                        <div class="flow-node">Seed + domain</div>
+                        <div class="flow-node">256-bit state</div>
+                        <div class="flow-node">ARX mixing</div>
+                        <div class="flow-node">64-bit counter</div>
+                        <div class="flow-node">32-bit output</div>
+                    </div>
+                    <div class="callout">Same configuration means same stream. Change the seed, domain, rounds, or zeta values and the stream changes.</div>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>Active Browser Generator</h3>
+                    <p>The app instantiates <strong>RGE256Safe</strong>, not the older comparison prototype. It keeps eight 32-bit words as the main state and two 32-bit counter words as a 64-bit monotonic counter.</p>
+                    <ul>
+                        <li><strong>State:</strong> 8 x 32-bit words = 256 bits.</li>
+                        <li><strong>Counter:</strong> mixed into every emitted value.</li>
+                        <li><strong>Output:</strong> unsigned 32-bit words, then optionally mapped to ranges.</li>
+                        <li><strong>Purpose:</strong> reproducible non-cryptographic random streams.</li>
+                    </ul>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>How One Output Is Produced</h3>
+                    <ol>
+                        <li>Initialize state from the seed, domain string, and zeta controls.</li>
+                        <li>Run the selected number of ARX rounds.</li>
+                        <li>Each round performs add, rotate, and XOR operations across state lanes.</li>
+                        <li>Cross-mix the lanes so changes spread through the state.</li>
+                        <li>Increment the 64-bit counter and fold it into the output word.</li>
+                    </ol>
+                    <div class="code-block">s[0] += s[1]; s[1] = rotl32(s[1] ^ s[0], 7)
+s[2] += s[3]; s[3] = rotl32(s[3] ^ s[2], 9)
+s[4] += s[5]; s[5] = rotl32(s[5] ^ s[4], 13)
+s[6] += s[7]; s[7] = rotl32(s[7] ^ s[6], 18)</div>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>What The Controls Mean</h3>
+                    <ul>
+                        <li><strong>Seed:</strong> the reproducible starting value. Record it with every result.</li>
+                        <li><strong>Rounds:</strong> more rounds increase diffusion and reduce speed.</li>
+                        <li><strong>Zeta values:</strong> folded into initial state expansion for stream variation.</li>
+                        <li><strong>Domain:</strong> separates independent streams under the same seed.</li>
+                        <li><strong>Range:</strong> display mapping only. External batteries should use raw 32-bit output.</li>
+                    </ul>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>What The Browser Checks Mean</h3>
+                    <p>The app's charts and quick tests are fast sanity checks. They can reveal obvious bias or broken wiring, but they do not replace long-run statistical batteries.</p>
+                    <ul>
+                        <li><strong>Histogram:</strong> checks rough uniformity over the selected range.</li>
+                        <li><strong>Entropy:</strong> estimates observed information content for the sample.</li>
+                        <li><strong>KS test:</strong> compares the sample to a uniform distribution.</li>
+                        <li><strong>Bit views:</strong> look for imbalance in bit positions and transitions.</li>
+                    </ul>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>Claims Boundary</h3>
+                    <p>Professional reporting should separate observed test results from security claims. Passing statistical batteries does not make a generator cryptographically secure.</p>
+                    <div class="callout">Use RGE256Safe for research, teaching, Monte Carlo, procedural generation, and reproducibility experiments. Do not use it for keys, passwords, authentication, gambling, finance, medical, or safety-critical systems.</div>
+                </section>
+            </div>
+
+            <div class="view-intro" data-view="testing">
+                <h2>External Statistical Testing</h2>
+                <p>The app does not run PractRand, dieharder, or TestU01 in the browser. Use the included stream generator and harnesses in your own environment, then copy summarized results back into this app or the README when you have completed a battery.</p>
+            </div>
+
+            <div class="doc-grid full-width" data-view="testing">
+                <section class="panel doc-card">
+	                    <h3>1. Generate A Raw Stream</h3>
+	                    <p>Use raw little-endian 32-bit output for serious batteries. Avoid custom ranges, CSV, JSON, or formatted text unless a test explicitly asks for text.</p>
+	                    <div class="code-block">node scripts/rge256-stream.mjs --seed 3405691 --count 1000000 --format raw > rge256-u32le.bin
+	node scripts/rge256-stream.mjs --seed 3405691 --count 262144 --format raw > sample-1mib.bin</div>
+	                </section>
+
+                <section class="panel doc-card">
+                    <h3>PractRand</h3>
+                    <p>PractRand is stream-oriented. Pipe unbounded 32-bit output into <code>RNG_test stdin32</code> and stop at the data volume you want to report.</p>
+                    <div class="code-block">node scripts/rge256-stream.mjs --seed 3405691 --format raw | RNG_test stdin32
+node scripts/rge256-stream.mjs --seed 3405691 --format raw | RNG_test stdin32 -tlmin 32MB -tlmax 16GB</div>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>dieharder</h3>
+                    <p>dieharder can read raw binary from stdin with generator 200. Run the full battery, save the output, and report pass/weak/fail counts with command details.</p>
+                    <div class="code-block">node scripts/rge256-stream.mjs --seed 3405691 --format raw | dieharder -g 200 -a
+node scripts/rge256-stream.mjs --seed 3405691 --format raw | dieharder -g 200 -d 0</div>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>TestU01 Crush / BigCrush</h3>
+                    <p>TestU01 is a C library. Compile the included harness against TestU01 and choose SmallCrush, Crush, or BigCrush. BigCrush can take a long time.</p>
+                    <div class="code-block">cc tools/testu01-rge256.c -o testu01-rge256 -ltestu01 -lprobdist -lmylib -lm
+./testu01-rge256 --battery smallcrush --seed 3405691
+./testu01-rge256 --battery crush --seed 3405691
+./testu01-rge256 --battery bigcrush --seed 3405691</div>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>What To Record</h3>
+                    <ul>
+                        <li>Generator version or commit hash.</li>
+                        <li>Seed, rounds, zeta values, and domain string.</li>
+                        <li>Tool name, version, battery, and exact command.</li>
+                        <li>Total bytes or samples consumed.</li>
+                        <li>Pass, weak, suspicious, and fail counts.</li>
+                        <li>Full raw logs as artifacts, not only screenshots.</li>
+                    </ul>
+                </section>
+
+                <section class="panel doc-card">
+                    <h3>Interpreting Results</h3>
+	                    <p>A clean battery result is evidence that the tested stream did not trigger that suite's detectors at that data volume. It is not proof of randomness, unpredictability, or cryptographic security.</p>
+	                    <div class="callout">When adding results back to the app, phrase them as empirical observations: "No failures observed through X GB under PractRand with seed Y," not as absolute guarantees.</div>
+	                </section>
+
+	                <section class="panel doc-card full-width">
+	                    <h3>Validation Results Ledger</h3>
+	                    <p>Use this table for published results after the external batteries finish. Keep pending rows until a complete tool log is available.</p>
+	                    <div class="results-ledger">
+	                        <table>
+	                            <thead>
+	                                <tr>
+	                                    <th>Battery</th>
+	                                    <th>Configuration</th>
+	                                    <th>Data Volume</th>
+	                                    <th>Observed Result</th>
+	                                    <th>Status</th>
+	                                </tr>
+	                            </thead>
+	                            <tbody>
+	                                <tr>
+	                                    <td data-label="Battery">PractRand</td>
+	                                    <td data-label="Configuration">seed 3405691, rounds 3, domain rge-demo</td>
+	                                    <td data-label="Data Volume">Pending</td>
+	                                    <td data-label="Observed Result">Awaiting external run and saved log.</td>
+	                                    <td data-label="Status"><span class="status-pill">Not run</span></td>
+	                                </tr>
+	                                <tr>
+	                                    <td data-label="Battery">dieharder</td>
+	                                    <td data-label="Configuration">seed 3405691, rounds 3, domain rge-demo</td>
+	                                    <td data-label="Data Volume">Pending</td>
+	                                    <td data-label="Observed Result">Awaiting full pass / weak / fail summary.</td>
+	                                    <td data-label="Status"><span class="status-pill">Not run</span></td>
+	                                </tr>
+	                                <tr>
+	                                    <td data-label="Battery">TestU01 Crush</td>
+	                                    <td data-label="Configuration">seed 3405691, rounds 3, domain rge-demo</td>
+	                                    <td data-label="Data Volume">Pending</td>
+	                                    <td data-label="Observed Result">Awaiting SmallCrush, Crush, or BigCrush report.</td>
+	                                    <td data-label="Status"><span class="status-pill">Not run</span></td>
+	                                </tr>
+	                            </tbody>
+	                        </table>
+	                    </div>
+	                </section>
+	            </div>
+
             <!-- Interactive Games/Simulations Panel -->
-            <div class="panel full-width" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <div class="view-intro" data-view="demos">
+                <h2>Use The Stream In Simple Systems</h2>
+                <p>These examples show how the generator behaves in familiar probability workflows. They are teaching demos, not validation batteries.</p>
+            </div>
+
+            <div class="panel full-width" data-view="demos" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                 <h2 style="color: #667eea;">🎮 Interactive Demos & Games</h2>
                 <p style="margin-bottom: 20px; color: #6c757d;">See RGE-256 in action with classic probability applications!</p>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+	                <div class="demo-grid">
                     
                     <!-- Dice Roller -->
                     <div class="game-card">
@@ -1106,16 +1702,21 @@
              */
             constructor(seed, rounds = 3, zetas = [1.585, 1.926, 1.262], domain = "rge-demo") {
                 this.rounds = rounds;
+                this.zetas = zetas;
+                this.domain = domain;
 
-                // Initialize state from seed using simple PRNG
+                // Expand the user seed, domain, and zeta controls into the initial RGE state.
                 this.s = new Uint32Array(8);
-                let x = seed >>> 0;
+                const domainText = `${seed}|${domain}|${zetas.map((z) => z.toFixed(6)).join('|')}`;
+                const [h1, h2] = simpleHash(domainText);
+                let x = (seed ^ h1) >>> 0;
                 for (let i = 0; i < 8; i++) {
                     x ^= x << 13;
                     x ^= x >>> 17;
                     x ^= x << 5;
-                    x = (x + 0x9E3779B9) >>> 0;
-                    this.s[i] = x;
+                    const zetaWord = Math.floor(Math.abs(zetas[i % zetas.length]) * 0x1000000) >>> 0;
+                    x = (x + 0x9E3779B9 + Math.imul(h2, i + 1) + zetaWord) >>> 0;
+                    this.s[i] = (x ^ rotl32(h1, (i + 1) % 31 || 1)) >>> 0;
                 }
 
                 // 64-bit counter (stored as two 32-bit values)
@@ -1171,7 +1772,7 @@
             }
         }
 
-        // Keep the old RGE256 class for reference (but not used)
+        // Legacy prototype retained for comparison only. The app instantiates RGE256Safe.
         class RGE256 {
             constructor(seed, rounds = 3, zetas = [1.585, 1.926, 1.262], domain = "rge-demo") {
                 this.rounds = rounds;
@@ -1310,10 +1911,25 @@
             
             console.log('RGE-256-Safe initialized:', { seed, rounds, zetas: [zeta1, zeta2, zeta3], domain });
         }
+
+        function browserSeed() {
+            const words = new Uint32Array(2);
+            if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+                window.crypto.getRandomValues(words);
+            } else {
+                const now = BigInt(Date.now());
+                words[0] = Number(now & 0xFFFFFFFFn) >>> 0;
+                words[1] = Number((now >> 32n) & 0xFFFFFFFFn) >>> 0;
+            }
+
+            return Number(((BigInt(words[0]) << 21n) ^ BigInt(words[1] & 0x1FFFFF)) & 0x1FFFFFFFFFFFFFn);
+        }
         
         function randomizeSeed() {
-            const randomSeed = Math.floor(Math.random() * 0x100000000);
+            const randomSeed = browserSeed();
             document.getElementById('seed').value = randomSeed;
+            initializeGenerator();
+            document.getElementById('output').textContent = `New seed ${randomSeed} selected and RGE256Safe initialized.`;
         }
         
         function generateNumbers() {
@@ -1470,6 +2086,18 @@
             // Redisplay output
             if (generatedNumbers.length > 0) {
                 displayOutput();
+            }
+        }
+
+        function switchView(view) {
+            document.body.dataset.activeView = view;
+            document.querySelectorAll('[data-view-button]').forEach((button) => {
+                button.classList.toggle('active', button.dataset.viewButton === view);
+            });
+
+            if (view === 'results' && generatedNumbers.length > 0) {
+                updateStatistics();
+                updateVisualization();
             }
         }
         
@@ -1887,7 +2515,7 @@
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
-            const btn = document.querySelector('.theme-toggle');
+            const btn = document.getElementById('themeToggle');
             btn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
@@ -1895,7 +2523,7 @@
         // Load saved theme
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
-            document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+            document.getElementById('themeToggle').textContent = '☀️ Light Mode';
         }
         
         // ========================================
@@ -2988,11 +3616,10 @@
             const installButton = document.createElement('button');
             installButton.id = 'installButton';
             installButton.className = 'theme-toggle';
-            installButton.style.right = '340px';
             installButton.textContent = '📱 Install App';
             installButton.onclick = promptInstall;
             
-            document.querySelector('.header').appendChild(installButton);
+            document.querySelector('.header-actions').appendChild(installButton);
         }
         
         function hideInstallButton() {

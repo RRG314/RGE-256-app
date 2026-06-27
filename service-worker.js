@@ -1,8 +1,12 @@
 // Service Worker for RGE-256 PWA
-const CACHE_NAME = 'rge256-v1';
+const CACHE_NAME = 'rge256-v1.1.3';
 const urlsToCache = [
+  './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './privacy.html',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install event - cache files
@@ -37,6 +41,23 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('./index.html', responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -67,9 +88,11 @@ self.addEventListener('fetch', (event) => {
         });
       })
       .catch(() => {
-        // Network failed and not in cache
         console.log('[Service Worker] Fetch failed');
-        // Could return offline page here if you had one
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+        return new Response('', { status: 504, statusText: 'Offline' });
       })
   );
 });

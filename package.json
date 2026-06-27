@@ -1,0 +1,13 @@
+{
+  "name": "rge-256-app",
+  "version": "1.1.2",
+  "description": "Browser workbench and external testing utilities for the RGE256Safe PRNG demo.",
+  "type": "module",
+  "scripts": {
+    "stream:help": "node scripts/rge256-stream.mjs --help",
+    "stream:sample": "node scripts/rge256-stream.mjs --seed 3405691 --count 1000000 --format raw > rge256-u32le.bin",
+    "practrand:stdin": "node scripts/rge256-stream.mjs --seed 3405691 --format raw | RNG_test stdin32",
+    "dieharder:stdin": "node scripts/rge256-stream.mjs --seed 3405691 --format raw | dieharder -g 200 -a"
+  },
+  "license": "MIT"
+}
